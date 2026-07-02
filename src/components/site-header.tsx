@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Container } from "@/components/ui/container";
 import { LinkButton } from "@/components/ui/button";
+import { MobileNav } from "@/components/mobile-nav";
 
 const NAV_LINKS = [
   { href: "/chat", label: "Chat" },
@@ -13,18 +14,21 @@ const NAV_LINKS = [
 export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-paper/90 backdrop-blur">
-      <Container className="flex h-16 items-center justify-between gap-2">
-        <Link
-          href="/"
-          className="flex shrink-0 items-center gap-2 whitespace-nowrap font-semibold text-navy-950"
-        >
-          <span className="inline-block h-2 w-2 shrink-0 rounded-full bg-accent" />
-          <span className="text-sm sm:text-base">
-            The Tax Whisperer<span className="text-accent-dark"> UK</span>
-          </span>
-        </Link>
+      <Container className="relative flex h-16 items-center justify-between gap-2">
+        <div className="flex items-center gap-3">
+          <MobileNav />
+          <Link
+            href="/"
+            className="flex shrink-0 items-center gap-2 whitespace-nowrap font-semibold text-navy-950"
+          >
+            <span className="inline-block h-2 w-2 shrink-0 rounded-full bg-accent" />
+            <span className="text-sm sm:text-base">
+              The Tax Whisperer<span className="text-accent-dark"> UK</span>
+            </span>
+          </Link>
+        </div>
 
-        <nav className="hidden items-center gap-6 md:flex">
+        <nav className="hidden items-center gap-6 lg:flex">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.href}
@@ -37,7 +41,7 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-          <LinkButton href="/sign-in" variant="ghost" className="hidden sm:inline-flex">
+          <LinkButton href="/sign-in" variant="ghost" className="hidden lg:inline-flex">
             Sign in
           </LinkButton>
           <LinkButton
