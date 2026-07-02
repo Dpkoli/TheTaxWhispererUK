@@ -1,10 +1,31 @@
-import { ComingSoon } from "@/components/coming-soon";
+import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
+import { ChatWindow } from "@/components/chat/chat-window";
+import { auth } from "@/lib/auth";
+import { getOrCreateSessionForUser, listMessages } from "@/db/queries/chat";
 
-export default function ChatPage() {
+export const dynamic = "force-dynamic";
+
+export default async function ChatPage() {
+  const session = await auth();
+
+  let initialMessages: { id: string; role: "user" | "assistant"; body: string }[] = [];
+
+  if (session?.user?.id) {
+    const chatSession = await getOrCreateSessionForUser(session.user.id);
+    const messages = await listMessages(chatSession.id);
+    initialMessages = messages.map((m) => ({
+      id: m.id,
+      role: m.role,
+      body: m.body,
+    }));
+  }
+
   return (
-    <ComingSoon
-      title="Chat is being built next"
-      description="This is where you'll talk through a UK tax or pension question in plain English, with an option to escalate into a full cited Advisory answer."
-    />
+    <div className="flex min-h-screen flex-col">
+      <SiteHeader />
+      <ChatWindow isGuest={!session?.user} initialMessages={initialMessages} />
+      <SiteFooter />
+    </div>
   );
 }
