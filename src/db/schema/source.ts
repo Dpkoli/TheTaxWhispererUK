@@ -3,6 +3,7 @@ import { jurisdictionEnum, sourceStatusEnum, sourceTypeEnum } from "./enums";
 
 export const sources = pgTable("sources", {
   id: uuid("id").primaryKey().defaultRandom(),
+  slug: text("slug").notNull().unique(),
   sourceType: sourceTypeEnum("source_type").notNull(),
   title: text("title").notNull(),
   citationCode: text("citation_code").notNull(),

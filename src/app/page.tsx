@@ -158,9 +158,9 @@ export default function Home() {
                 No — not in full. Your Personal Allowance reduces by £1 for
                 every £2 of adjusted net income above £100,000 (
                 <CitationChip href="/sources/ita-2007-s35" code="ITA 2007, s.35" />
-                ), tapering to nil at £125,140. HMRC&apos;s worked examples are set
-                out in{" "}
-                <CitationChip href="/sources/hmrc-manual-eim-01" code="EIM01100" />.
+                ), tapering to nil at £125,140. &quot;Adjusted net income&quot; has
+                its own precise legal meaning, set out in{" "}
+                <CitationChip href="/sources/ita-2007-s58" code="ITA 2007, s.58" />.
               </p>
             </Card>
           </Container>
