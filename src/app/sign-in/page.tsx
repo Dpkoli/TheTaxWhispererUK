@@ -6,7 +6,6 @@ import { signIn } from "@/lib/auth";
 
 const PROVIDERS = [
   { id: "google", label: "Continue with Google" },
-  { id: "microsoft-entra-id", label: "Continue with Microsoft" },
   { id: "github", label: "Continue with GitHub" },
 ] as const;
 
@@ -77,9 +76,9 @@ export default async function SignInPage({
             </div>
 
             <p className="mt-6 text-center text-xs leading-relaxed text-ink/50">
-              No passwords, ever — we only support sign-in via Google,
-              Microsoft, or GitHub. By continuing you agree this is an
-              educational tool, not regulated financial or legal advice.
+              No passwords, ever — we only support sign-in via Google or
+              GitHub. By continuing you agree this is an educational tool,
+              not regulated financial or legal advice.
             </p>
 
             <p className="mt-4 text-center text-sm text-ink/70">

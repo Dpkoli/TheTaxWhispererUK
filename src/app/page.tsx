@@ -173,9 +173,9 @@ export default function Home() {
               Create a free account to save your history and track progress
             </h2>
             <p className="mx-auto mt-3 max-w-xl text-ink/70">
-              Chat works instantly as a guest. Sign in with Google, Microsoft,
-              or GitHub to unlock saved chat history, Advisory, and Learning
-              progress tracking.
+              Chat works instantly as a guest. Sign in with Google or GitHub
+              to unlock saved chat history, Advisory, and Learning progress
+              tracking.
             </p>
             <div className="mt-8 flex justify-center gap-4">
               <LinkButton href="/sign-in" variant="primary">
