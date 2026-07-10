@@ -8,6 +8,26 @@ import {
   topics,
 } from "@/db/schema";
 
+export async function listAllSourcesForContext() {
+  return db.query.sources.findMany({
+    columns: {
+      slug: true,
+      sourceType: true,
+      title: true,
+      citationCode: true,
+      summaryPlainEnglish: true,
+      fullTextExtract: true,
+      status: true,
+    },
+  });
+}
+
+export async function listAllTopicsForContext() {
+  return db.query.topics.findMany({
+    columns: { slug: true, name: true },
+  });
+}
+
 export async function listAdvisoryQuestions() {
   return db
     .select({

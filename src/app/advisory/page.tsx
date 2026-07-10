@@ -4,6 +4,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { Container } from "@/components/ui/container";
 import { Card } from "@/components/ui/card";
 import { ConfidenceBadge, type ConfidenceLevel } from "@/components/ui/confidence-badge";
+import { AskQuestionForm } from "@/components/advisory/ask-question-form";
 import { listAdvisoryQuestions } from "@/db/queries/advisory";
 
 export const dynamic = "force-dynamic";
@@ -28,14 +29,7 @@ export default async function AdvisoryPage() {
             to its source.
           </p>
 
-          <Card className="mt-8 border-accent/30 bg-accent/5">
-            <p className="text-sm text-ink/70">
-              Asking new questions live is coming in the next build phase.
-              For now, browse the worked examples below to see the format —
-              plain summary, technical analysis, worked example, compliance
-              notes, and full citations.
-            </p>
-          </Card>
+          <AskQuestionForm />
 
           {items.length === 0 ? (
             <Card className="mt-6">
