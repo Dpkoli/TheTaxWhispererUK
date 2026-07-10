@@ -71,8 +71,10 @@ export function ChatWindow({
     setMessages((prev) => [...prev, optimisticUserMessage]);
     setInput("");
 
+    const historyForRequest = messages.map((m) => ({ role: m.role, body: m.body }));
+
     startTransition(async () => {
-      const result = await sendChatMessage(trimmed);
+      const result = await sendChatMessage(trimmed, historyForRequest);
       const userMessageId = result.persisted
         ? result.userMessage.id
         : optimisticUserMessage.id;

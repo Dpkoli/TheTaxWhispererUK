@@ -1,24 +1,22 @@
-const TOPIC_HINTS: Array<{ keywords: string[]; hint: string }> = [
-  {
-    keywords: ["personal allowance", "£100,000", "100,000", "adjusted net income"],
-    hint: "This sounds like a Personal Allowance question — Advisory has a fully cited breakdown of how the £100,000 taper works.",
-  },
-  {
-    keywords: ["state pension", "qualifying year", "national insurance record"],
-    hint: "This sounds like a State Pension question — Advisory has a fully cited breakdown of qualifying years and how the rate is worked out.",
-  },
+const TOPIC_HINTS: Array<{ keywords: string[] }> = [
+  { keywords: ["personal allowance", "£100,000", "100,000", "adjusted net income"] },
+  { keywords: ["state pension", "qualifying year", "national insurance record"] },
 ];
 
-export function generateStubReply(userMessage: string) {
+/** True if the message touches a topic we have a real, cited Advisory answer for. */
+export function matchesKnownAdvisoryTopic(userMessage: string) {
   const lower = userMessage.toLowerCase();
-  const matched = TOPIC_HINTS.find((topic) =>
-    topic.keywords.some((keyword) => lower.includes(keyword)),
-  );
+  return TOPIC_HINTS.some((topic) => topic.keywords.some((k) => lower.includes(k)));
+}
 
+export const ESCALATION_MARKER = "Open in Advisory →";
+
+/** Fallback text used only if the live LLM call fails or isn't configured. */
+export function generateStubReply(userMessage: string) {
   const intro =
-    "Live, AI-generated replies aren't connected yet in this build — you're seeing a placeholder so the chat flow itself can be reviewed.";
-
-  return matched
-    ? `${intro} ${matched.hint} Want the detailed breakdown with sources? Open in Advisory →`
-    : `${intro} Once it's connected, I'll talk this through with you in plain English. In the meantime, Advisory has cited, worked examples you can browse. Want the detailed breakdown with sources? Open in Advisory →`;
+    "I couldn't reach the live assistant just now, so here's a placeholder instead of a guess.";
+  const hint = matchesKnownAdvisoryTopic(userMessage)
+    ? " Advisory has a fully cited breakdown that might cover this already."
+    : " Advisory has cited, worked examples you can browse in the meantime.";
+  return `${intro}${hint} Want the detailed breakdown with sources? ${ESCALATION_MARKER}`;
 }
