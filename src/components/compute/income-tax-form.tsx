@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CitationChip } from "@/components/ui/citation-chip";
 import { runIncomeTaxComputation } from "@/app/compute/income-tax/actions";
+import { uploadIncomeTaxDocument, type UploadResult } from "@/app/compute/income-tax/upload-actions";
 
 type ComputationResult = Awaited<ReturnType<typeof runIncomeTaxComputation>>;
 
@@ -33,10 +34,43 @@ function downloadCsv(result: ComputationResult) {
 }
 
 export function IncomeTaxForm({ isGuest }: { isGuest: boolean }) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [income, setIncome] = useState("");
   const [result, setResult] = useState<ComputationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [extraction, setExtraction] = useState<UploadResult | null>(null);
+  const [wasEdited, setWasEdited] = useState(false);
+
+  async function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setUploadError(null);
+    setIsUploading(true);
+    try {
+      const formData = new FormData();
+      formData.set("file", file);
+      const res = await uploadIncomeTaxDocument(formData);
+      setExtraction(res);
+      setWasEdited(false);
+      if (res.totalPayForYear) {
+        setIncome(String(res.totalPayForYear.value));
+      } else {
+        setUploadError(
+          "Couldn't find a total pay figure in that document — enter it manually below.",
+        );
+      }
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : "Upload failed.");
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -48,7 +82,7 @@ export function IncomeTaxForm({ isGuest }: { isGuest: boolean }) {
     setError(null);
     startTransition(async () => {
       try {
-        const res = await runIncomeTaxComputation(parsed);
+        const res = await runIncomeTaxComputation(parsed, extraction?.extractionId);
         setResult(res);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Something went wrong.");
@@ -58,6 +92,48 @@ export function IncomeTaxForm({ isGuest }: { isGuest: boolean }) {
 
   return (
     <div className="space-y-6">
+      <Card>
+        <h2 className="text-sm font-semibold text-navy-950">
+          Upload a P60 or payslip (optional)
+        </h2>
+        <p className="mt-1 text-xs leading-relaxed text-ink/60">
+          PDF or Excel. We&apos;ll try to read a total pay figure and pre-fill
+          it below — you always review and can edit it before computing
+          anything.
+        </p>
+        <div className="mt-3 flex items-center gap-3">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".pdf,.xlsx,.csv"
+            onChange={handleFileChange}
+            disabled={isUploading}
+            className="text-sm text-ink/70 file:mr-3 file:rounded-md file:border file:border-line file:bg-white file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-ink hover:file:bg-paper-muted"
+          />
+          {isUploading && <span className="text-xs text-ink/50">Reading document…</span>}
+        </div>
+        {uploadError && <p className="mt-2 text-sm text-red-700">{uploadError}</p>}
+
+        {extraction && (extraction.totalPayForYear || extraction.totalTaxDeducted) && (
+          <div className="mt-3 rounded-md border border-accent/30 bg-accent/5 p-3 text-xs text-ink/70">
+            <p className="font-semibold text-navy-950">
+              {wasEdited ? "Auto-extracted, then edited by you" : "Auto-extracted — review before computing"}
+            </p>
+            {extraction.totalPayForYear && (
+              <p className="mt-1">
+                Total pay for year: {currency.format(extraction.totalPayForYear.value)} (
+                {extraction.totalPayForYear.confidence} confidence)
+              </p>
+            )}
+            {extraction.totalTaxDeducted && (
+              <p>
+                Total tax deducted (per document): {currency.format(extraction.totalTaxDeducted.value)}
+              </p>
+            )}
+          </div>
+        )}
+      </Card>
+
       <Card>
         <form onSubmit={handleSubmit} className="flex flex-wrap items-end gap-4">
           <div className="flex-1 min-w-[220px]">
@@ -70,7 +146,10 @@ export function IncomeTaxForm({ isGuest }: { isGuest: boolean }) {
               min={0}
               step="0.01"
               value={income}
-              onChange={(event) => setIncome(event.target.value)}
+              onChange={(event) => {
+                setIncome(event.target.value);
+                if (extraction) setWasEdited(true);
+              }}
               placeholder="e.g. 110000"
               className="mt-1.5 w-full rounded-md border border-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
             />
@@ -84,7 +163,8 @@ export function IncomeTaxForm({ isGuest }: { isGuest: boolean }) {
           This v1 covers non-savings, non-dividend income only, and treats
           the figure you enter as your adjusted net income directly — it
           does not yet separately model pension contributions or Gift Aid
-          reducing that figure.
+          reducing that figure. Clicking Compute is what confirms this
+          figure, whether typed or extracted from an upload.
         </p>
       </Card>
 

@@ -1,13 +1,17 @@
 "use server";
 
+import { eq } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import { db } from "@/db";
-import { computationLineItems, taxComputations } from "@/db/schema";
+import { computationLineItems, documentExtractions, taxComputations } from "@/db/schema";
 import { getPublishedRateTable } from "@/db/queries/compute";
 import { computeIncomeTax, type IncomeTaxRateTableValues } from "@/lib/tax-engine/income-tax";
 import { narrateIncomeTaxResult } from "@/lib/tax-engine/narrative";
 
-export async function runIncomeTaxComputation(taxableIncome: number) {
+export async function runIncomeTaxComputation(
+  taxableIncome: number,
+  sourceExtractionId?: string,
+) {
   if (!Number.isFinite(taxableIncome) || taxableIncome < 0) {
     throw new Error("Enter a valid, non-negative income figure");
   }
@@ -49,6 +53,20 @@ export async function runIncomeTaxComputation(taxableIncome: number) {
         orderIndex: index,
       })),
     );
+  }
+
+  // The moment a user submits a (possibly edited) figure for computation is
+  // the explicit confirmation step — this is what "confirmed" means for a
+  // DocumentExtraction, never the raw extracted value on its own.
+  if (sourceExtractionId) {
+    await db
+      .update(documentExtractions)
+      .set({
+        confirmedFields: { taxableIncome },
+        confirmationStatus: "confirmed",
+        computationId,
+      })
+      .where(eq(documentExtractions.id, sourceExtractionId));
   }
 
   return {
