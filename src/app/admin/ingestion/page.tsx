@@ -27,11 +27,14 @@ export default async function IngestionAdminPage() {
             Ingestion runs &amp; review queue
           </h1>
           <p className="mt-3 max-w-2xl text-ink/70">
-            This trigger simulates a pipeline pass — it does not call
-            legislation.gov.uk, GOV.UK, or any tribunal feed. Every flag it
-            produces is prefixed &quot;[Simulated]&quot; below. A production
-            version replaces the button with a scheduled job and this
-            mock function with real fetch/diff logic against those sources.
+            GOV.UK guidance sources are checked for real against GOV.UK&apos;s
+            public Content API — a flag means GOV.UK reports that page
+            changed since we last verified it. Legislation, HMRC manual, and
+            case law sources don&apos;t have an equivalent lightweight API
+            yet, so those flags are still illustrative and prefixed
+            &quot;[Simulated]&quot; below. This also runs daily on a schedule
+            (see <code>vercel.json</code>) — the button below triggers an
+            extra on-demand pass.
           </p>
           {!session?.user && (
             <Card className="mt-6 border-accent/30 bg-accent/5">

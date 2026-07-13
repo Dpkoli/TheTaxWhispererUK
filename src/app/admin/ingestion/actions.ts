@@ -5,7 +5,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { sourceChangeFlags, sources } from "@/db/schema";
 import { auth } from "@/lib/auth";
-import { runMockIngestion } from "@/lib/ingestion/mock-ingestion";
+import { runIngestion } from "@/lib/ingestion/real-ingestion";
 
 async function requireAdmin() {
   const session = await auth();
@@ -17,7 +17,7 @@ async function requireAdmin() {
 
 export async function triggerIngestion() {
   await requireAdmin();
-  await runMockIngestion();
+  await runIngestion();
   revalidatePath("/admin/ingestion");
 }
 
