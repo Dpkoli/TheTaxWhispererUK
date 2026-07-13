@@ -2,15 +2,14 @@
  * Idempotent seed script — safe to re-run. Upserts by natural key (slug /
  * tax-area+year) so it never duplicates rows.
  *
- * Scope note: this does not attempt to mirror every source that may already
- * exist in a live database (e.g. the FTT case and HMRC manual entries added
- * during initial buildout) — those weren't re-verifiable from this session
- * without live access to legislation.gov.uk / gov.uk manuals (both blocked
- * the fetch). It seeds only sources whose text was freshly confirmed via
- * search in this session: the Income Tax personal allowance mechanism,
- * State Pension qualifying-years mechanism, and the newly added National
- * Insurance and Capital Gains Tax sources + rate tables. Run with
- * `npm run db:seed`.
+ * Scope note: this deliberately does NOT touch sources/topics that already
+ * exist in the live database with content that predates this script (e.g.
+ * ita-2007-s35, pensions-act-2014-s2, income-tax-personal-allowance) —
+ * doing so risked silently overwriting already-verified live content with
+ * a fresh reconstruction that might describe the same slug slightly
+ * differently. It only adds genuinely new sources/topics/rate tables (for
+ * National Insurance and Capital Gains Tax) that didn't exist before, all
+ * freshly verified via search in this session. Run with `npm run db:seed`.
  */
 import { and, eq } from "drizzle-orm";
 import { db } from "./index";
@@ -40,22 +39,6 @@ async function upsertTopic(row: typeof topics.$inferInsert) {
 async function main() {
   const now = new Date();
 
-  const itaS35 = await upsertSource({
-    slug: "ita-2007-s35",
-    sourceType: "act",
-    title: "Income Tax Act 2007, s.35 — Personal allowance",
-    citationCode: "ITA 2007 s.35",
-    officialUrl: "https://www.legislation.gov.uk/ukpga/2007/3/section/35",
-    jurisdiction: "uk",
-    effectiveFrom: "2007-04-06",
-    summaryPlainEnglish:
-      "Sets the Personal Allowance an individual can claim against income tax, and reduces ('tapers') it by £1 for every £2 of adjusted net income above £100,000.",
-    fullTextExtract:
-      "An individual who makes a claim is entitled to a personal allowance for a tax year... If the individual's adjusted net income exceeds £100,000, the allowance is reduced by one-half of the excess.",
-    status: "in_force",
-    lastVerifiedAt: now,
-  });
-
   const itaS58 = await upsertSource({
     slug: "ita-2007-s58",
     sourceType: "act",
@@ -68,23 +51,6 @@ async function main() {
       "Defines 'adjusted net income' — the figure the Personal Allowance taper (s.35) is measured against — as net income minus grossed-up Gift Aid donations and grossed-up pension contributions given relief at source.",
     fullTextExtract:
       "Step 1: take the amount of the individual's net income for the tax year. Step 2: deduct the grossed up amount of any qualifying Gift Aid donation. Step 3: deduct the gross amount of any pension contribution given relief at source. The result is adjusted net income.",
-    status: "in_force",
-    lastVerifiedAt: now,
-  });
-
-  const pensionsActS2 = await upsertSource({
-    slug: "pensions-act-2014-s2",
-    sourceType: "act",
-    title: "Pensions Act 2014, s.2 — Full rate of state pension",
-    citationCode: "Pensions Act 2014 s.2",
-    officialUrl:
-      "https://www.legislation.gov.uk/ukpga/2014/19/part/1/crossheading/state-pension-at-the-full-or-reduced-rate",
-    jurisdiction: "uk",
-    effectiveFrom: "2016-04-06",
-    summaryPlainEnglish:
-      "A person reaching pensionable age is entitled to the new State Pension at the full weekly rate if they have 35 or more qualifying years; fewer qualifying years (but at least the minimum) gives a reduced rate on a pro-rata basis.",
-    fullTextExtract:
-      "A person is entitled to a state pension payable at the full rate if the person has reached pensionable age and has 35 or more qualifying years. A qualifying year means a tax year in which the person's earnings factor is equal to or greater than the qualifying earnings factor for the year.",
     status: "in_force",
     lastVerifiedAt: now,
   });
@@ -155,18 +121,8 @@ async function main() {
     lastVerifiedAt: now,
   });
 
-  const incomeTaxTopic = await upsertTopic({
-    slug: "income-tax-personal-allowance",
-    name: "Income Tax: Personal Allowance",
-    taxArea: "income_tax",
-    difficultyLevel: "foundational",
-  });
-
-  const statePensionTopic = await upsertTopic({
-    slug: "state-pension-qualifying-years",
-    name: "State Pension: qualifying years",
-    taxArea: "state_pension",
-    difficultyLevel: "foundational",
+  const incomeTaxTopic = await db.query.topics.findFirst({
+    where: eq(topics.slug, "income-tax-personal-allowance"),
   });
 
   const nicTopic = await upsertTopic({
@@ -184,9 +140,9 @@ async function main() {
   });
 
   const topicSourceLinks: (typeof topicSources.$inferInsert)[] = [
-    { topicId: incomeTaxTopic.id, sourceId: itaS35.id, relevance: "primary" },
-    { topicId: incomeTaxTopic.id, sourceId: itaS58.id, relevance: "supporting" },
-    { topicId: statePensionTopic.id, sourceId: pensionsActS2.id, relevance: "primary" },
+    ...(incomeTaxTopic
+      ? [{ topicId: incomeTaxTopic.id, sourceId: itaS58.id, relevance: "supporting" as const }]
+      : []),
     { topicId: nicTopic.id, sourceId: sscbaS6.id, relevance: "primary" },
     { topicId: nicTopic.id, sourceId: govukNiRates.id, relevance: "primary" },
     { topicId: cgtTopic.id, sourceId: tcgaS1k.id, relevance: "primary" },
@@ -202,26 +158,6 @@ async function main() {
         set: { relevance: link.relevance },
       });
   }
-
-  await upsertRateTable({
-    taxArea: "income_tax",
-    taxYear: "2026-27",
-    jurisdiction: "uk",
-    effectiveFrom: "2026-04-06",
-    effectiveTo: "2027-04-05",
-    sourceId: itaS35.id,
-    status: "published",
-    values: {
-      personalAllowance: 12570,
-      personalAllowanceTaperThreshold: 100000,
-      personalAllowanceTaperRate: 0.5,
-      bands: [
-        { label: "Basic rate", upTo: 37700, rate: 0.2 },
-        { label: "Higher rate", upTo: 125140, rate: 0.4 },
-        { label: "Additional rate", upTo: null, rate: 0.45 },
-      ],
-    },
-  });
 
   await upsertRateTable({
     taxArea: "nic",
