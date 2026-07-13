@@ -1,4 +1,5 @@
 import { boolean, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { userRoleEnum } from "./enums";
 
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -7,5 +8,6 @@ export const users = pgTable("users", {
   image: text("image"),
   emailVerified: timestamp("email_verified", { withTimezone: true }),
   isGuestUpgraded: boolean("is_guest_upgraded").notNull().default(false),
+  role: userRoleEnum("role").notNull().default("user"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });

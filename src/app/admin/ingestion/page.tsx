@@ -33,19 +33,22 @@ export default async function IngestionAdminPage() {
             version replaces the button with a scheduled job and this
             mock function with real fetch/diff logic against those sources.
           </p>
-          <p className="mt-2 max-w-2xl text-xs text-amber-700">
-            Known gap: this page only checks that you&apos;re signed in, not
-            that you hold an admin role — there is no role system in the
-            data model yet. Don&apos;t treat this as access-controlled.
-          </p>
-
           {!session?.user && (
             <Card className="mt-6 border-accent/30 bg-accent/5">
               <p className="text-sm text-ink/70">Sign in to run or review ingestion.</p>
             </Card>
           )}
 
-          {session?.user && (
+          {session?.user && session.user.role !== "admin" && (
+            <Card className="mt-6 border-accent/30 bg-accent/5">
+              <p className="text-sm text-ink/70">
+                You&apos;re signed in, but this account doesn&apos;t hold the
+                admin role, so run/review actions are disabled.
+              </p>
+            </Card>
+          )}
+
+          {session?.user?.role === "admin" && (
             <form action={triggerIngestion} className="mt-6">
               <Button type="submit" variant="primary">
                 Run simulated ingestion check
@@ -70,7 +73,7 @@ export default async function IngestionAdminPage() {
                     <p className="mt-1 text-xs leading-relaxed text-ink/60">
                       {flag.changeSummary}
                     </p>
-                    {session?.user && (
+                    {session?.user?.role === "admin" && (
                       <div className="mt-3 flex gap-2">
                         <form action={reviewFlag.bind(null, flag.id, "approved")}>
                           <Button type="submit" variant="outline" className="text-xs">

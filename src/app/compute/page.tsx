@@ -13,10 +13,11 @@ const CALCULATORS = [
       "Personal Allowance (including the £100,000 taper) and the basic/higher/additional rate bands, for non-savings, non-dividend income.",
   },
   {
-    href: null,
+    href: "/compute/capital-gains-tax",
     title: "Capital Gains Tax",
-    status: "Coming soon",
-    description: "Annual exempt amount, rates, and relief calculations.",
+    status: "Available",
+    description:
+      "Annual exempt amount and the basic/higher rate split based on your unused Income Tax basic rate band.",
   },
   {
     href: null,
@@ -25,10 +26,10 @@ const CALCULATORS = [
     description: "Nil-rate band, residence nil-rate band, and reliefs.",
   },
   {
-    href: null,
+    href: "/compute/national-insurance",
     title: "National Insurance",
-    status: "Coming soon",
-    description: "Class 1, 2, and 4 contributions.",
+    status: "Available",
+    description: "Class 1 (employee) contributions for a single employment. Class 2 and 4 (self-employed) are coming soon.",
   },
 ];
 

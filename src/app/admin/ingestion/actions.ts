@@ -7,22 +7,22 @@ import { sourceChangeFlags, sources } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { runMockIngestion } from "@/lib/ingestion/mock-ingestion";
 
-async function requireSignedIn() {
+async function requireAdmin() {
   const session = await auth();
-  if (!session?.user?.id) {
-    throw new Error("Sign in to use the ingestion pipeline admin tools");
+  if (session?.user?.role !== "admin") {
+    throw new Error("Admin access required to use the ingestion pipeline tools");
   }
   return session;
 }
 
 export async function triggerIngestion() {
-  await requireSignedIn();
+  await requireAdmin();
   await runMockIngestion();
   revalidatePath("/admin/ingestion");
 }
 
 export async function reviewFlag(flagId: string, decision: "approved" | "rejected") {
-  await requireSignedIn();
+  await requireAdmin();
 
   const flag = await db.query.sourceChangeFlags.findFirst({
     where: eq(sourceChangeFlags.id, flagId),

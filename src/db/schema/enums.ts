@@ -137,3 +137,5 @@ export const confirmationStatusEnum = pgEnum("confirmation_status", [
 ]);
 
 export const chatRoleEnum = pgEnum("chat_role", ["user", "assistant"]);
+
+export const userRoleEnum = pgEnum("user_role", ["user", "admin"]);
