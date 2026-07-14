@@ -1,8 +1,9 @@
 "use server";
 
+import { eq } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import { db } from "@/db";
-import { computationLineItems, taxComputations } from "@/db/schema";
+import { computationLineItems, documentExtractions, taxComputations } from "@/db/schema";
 import { getPublishedRateTable } from "@/db/queries/compute";
 import {
   computeCorporationTax,
@@ -10,7 +11,10 @@ import {
 } from "@/lib/tax-engine/corporation-tax";
 import { narrateCorporationTaxResult } from "@/lib/tax-engine/narrative";
 
-export async function runCorporationTaxComputation(profits: number) {
+export async function runCorporationTaxComputation(
+  profits: number,
+  sourceExtractionId?: string,
+) {
   if (!Number.isFinite(profits) || profits < 0) {
     throw new Error("Enter a valid, non-negative profits figure");
   }
@@ -52,6 +56,20 @@ export async function runCorporationTaxComputation(profits: number) {
         orderIndex: index,
       })),
     );
+  }
+
+  // The moment a user submits a (possibly edited) figure for computation is
+  // the explicit confirmation step — this is what "confirmed" means for a
+  // DocumentExtraction, never the raw extracted value on its own.
+  if (sourceExtractionId) {
+    await db
+      .update(documentExtractions)
+      .set({
+        confirmedFields: { profits },
+        confirmationStatus: "confirmed",
+        computationId,
+      })
+      .where(eq(documentExtractions.id, sourceExtractionId));
   }
 
   return {
