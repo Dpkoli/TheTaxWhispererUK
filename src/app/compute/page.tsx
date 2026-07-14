@@ -86,6 +86,13 @@ const CALCULATORS = [
     description:
       "Full 8-step deemed employment payment calculation (Chapter 8, own-intermediary) including employer NIC grossing-up.",
   },
+  {
+    href: "/compute/nic-class2-class3",
+    title: "National Insurance (Class 2 / 3)",
+    status: "Available",
+    description:
+      "Whether you're credited automatically above the Small Profits Threshold, and the cost of voluntary Class 2/3 contributions.",
+  },
 ];
 
 export default function ComputePage() {

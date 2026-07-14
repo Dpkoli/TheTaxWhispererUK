@@ -10,6 +10,7 @@ import type { CouncilTaxResult } from "./council-tax";
 import type { BusinessRatesResult } from "./business-rates";
 import type { RdReliefResult } from "./rd-relief";
 import type { Ir35Result } from "./ir35-deemed-payment";
+import type { Class2Class3Result } from "./nic-class2-class3";
 
 const currency = new Intl.NumberFormat("en-GB", {
   style: "currency",
@@ -208,6 +209,25 @@ export function narrateIr35Result(result: Ir35Result) {
 
   lines.push(
     "The deemed payment itself is then subject to Income Tax and employee Class 1 National Insurance in the normal way — run it through those calculators separately to get the worker's actual take-home figure.",
+  );
+
+  return lines.join(" ");
+}
+
+/**
+ * Deterministic, template-based write-up of an already-computed Class
+ * 2/Class 3 National Insurance position — plain string formatting over
+ * real numbers, not free-form generation.
+ */
+export function narrateClass2Class3Result(result: Class2Class3Result) {
+  const lines = [
+    result.isAutomaticallyCredited
+      ? `On ${currency.format(result.annualProfits)} of annual profits, you're at or above the Small Profits Threshold, so you get a National Insurance credit for this year automatically — no Class 2 payment is required.`
+      : `On ${currency.format(result.annualProfits)} of annual profits, you're below the Small Profits Threshold, so no Class 2 payment is compulsory — but paying voluntarily secures a qualifying year toward your State Pension.`,
+  ];
+
+  lines.push(
+    `Paying voluntary Class 2 for ${result.weeks} weeks would cost ${currency.format(result.class2VoluntaryCost)}; the equivalent Class 3 top-up would cost ${currency.format(result.class3VoluntaryCost)} — Class 2 is the cheaper route wherever you're eligible to use it.`,
   );
 
   return lines.join(" ");

@@ -33,6 +33,7 @@ export const taxAreaEnum = pgEnum("tax_area", [
   "income_tax",
   "nic",
   "nic_class4",
+  "nic_class2_3",
   "cgt",
   "iht",
   "corporation_tax",

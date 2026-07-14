@@ -517,6 +517,55 @@ async function main() {
     lastVerifiedAt: now,
   });
 
+  const sscbaS11a = await upsertSource({
+    slug: "sscba-1992-s11a",
+    sourceType: "act",
+    title: "Social Security Contributions and Benefits Act 1992, s.11A — Class 2 contributions: rates",
+    citationCode: "SSCBA 1992 s.11A",
+    officialUrl: "https://www.legislation.gov.uk/ukpga/1992/4/section/11A",
+    jurisdiction: "uk",
+    effectiveFrom: "2024-04-06",
+    summaryPlainEnglish:
+      "Sets out the Class 2 self-employed National Insurance rules. As amended with effect from 6 April 2024, self-employed people with profits at or above the Small Profits Threshold are treated as having paid Class 2 (getting the qualifying-year credit automatically, at no cost); below the threshold they may pay voluntarily at the flat weekly rate to secure a qualifying year.",
+    fullTextExtract:
+      "A self-employed earner is not liable to pay a Class 2 contribution for a tax year if their relevant profits for the year equal or exceed the small profits threshold for the year, but is instead treated as having actually paid a Class 2 contribution.",
+    status: "in_force",
+    lastVerifiedAt: now,
+  });
+
+  const sscbaS13 = await upsertSource({
+    slug: "sscba-1992-s13",
+    sourceType: "act",
+    title: "Social Security Contributions and Benefits Act 1992, s.13 — Class 3 contributions",
+    citationCode: "SSCBA 1992 s.13",
+    officialUrl: "https://www.legislation.gov.uk/ukpga/1992/4/section/13",
+    jurisdiction: "uk",
+    effectiveFrom: "1992-07-13",
+    summaryPlainEnglish:
+      "Allows anyone (employed, self-employed, or not working) to pay voluntary Class 3 National Insurance contributions to fill a gap in their contribution record, at a flat weekly rate set annually — more expensive than the Class 2 voluntary rate where that option is available.",
+    fullTextExtract:
+      "A person shall be entitled, if he is under pensionable age... to pay a Class 3 contribution in respect of that year, at the rate for the time being in force under section 19 below.",
+    status: "in_force",
+    lastVerifiedAt: now,
+  });
+
+  const govukClass2Class3Rates = await upsertSource({
+    slug: "govuk-class2-class3-rates-2026-27",
+    sourceType: "govuk_guidance",
+    title: "Voluntary National Insurance rates: Class 2 and Class 3",
+    citationCode: "GOV.UK, Voluntary National Insurance rates (2026-27)",
+    officialUrl: "https://www.gov.uk/national-insurance/rates-and-thresholds",
+    jurisdiction: "uk",
+    effectiveFrom: "2026-04-06",
+    effectiveTo: "2027-04-05",
+    summaryPlainEnglish:
+      "For 2026/27: the Small Profits Threshold is £7,105 — self-employed profits at or above this are credited automatically at no cost. Voluntary Class 2 costs £3.65/week. Voluntary Class 3 costs £18.40/week and is available to anyone topping up a gap year.",
+    fullTextExtract:
+      "Small Profits Threshold: £7,105. Class 2 voluntary rate: £3.65 per week. Class 3 voluntary rate: £18.40 per week.",
+    status: "in_force",
+    lastVerifiedAt: now,
+  });
+
   const incomeTaxTopic = await db.query.topics.findFirst({
     where: eq(topics.slug, "income-tax-personal-allowance"),
   });
@@ -598,6 +647,13 @@ async function main() {
     difficultyLevel: "advanced",
   });
 
+  const class2Class3Topic = await upsertTopic({
+    slug: "nic-class2-class3-voluntary",
+    name: "National Insurance: Class 2/3 voluntary contributions",
+    taxArea: "nic_class2_3",
+    difficultyLevel: "foundational",
+  });
+
   const topicSourceLinks: (typeof topicSources.$inferInsert)[] = [
     ...(incomeTaxTopic
       ? [
@@ -640,6 +696,9 @@ async function main() {
     { topicId: rdReliefTopic.id, sourceId: govukRdReliefMergedScheme.id, relevance: "primary" },
     { topicId: ir35Topic.id, sourceId: itepaS54.id, relevance: "primary" },
     { topicId: ir35Topic.id, sourceId: govukDeemedEmploymentPayment.id, relevance: "primary" },
+    { topicId: class2Class3Topic.id, sourceId: sscbaS11a.id, relevance: "primary" },
+    { topicId: class2Class3Topic.id, sourceId: sscbaS13.id, relevance: "primary" },
+    { topicId: class2Class3Topic.id, sourceId: govukClass2Class3Rates.id, relevance: "primary" },
   ];
 
   for (const link of topicSourceLinks) {
@@ -915,6 +974,21 @@ async function main() {
       flatRateDeduction: 0.05,
       employerNicRate: 0.15,
       employerNicSecondaryThreshold: 5000,
+    },
+  });
+
+  await upsertRateTable({
+    taxArea: "nic_class2_3",
+    taxYear: "2026-27",
+    jurisdiction: "uk",
+    effectiveFrom: "2026-04-06",
+    effectiveTo: "2027-04-05",
+    sourceId: govukClass2Class3Rates.id,
+    status: "published",
+    values: {
+      smallProfitsThreshold: 7105,
+      class2WeeklyRate: 3.65,
+      class3WeeklyRate: 18.4,
     },
   });
 
