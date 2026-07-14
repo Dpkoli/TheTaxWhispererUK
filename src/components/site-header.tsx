@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { Container } from "@/components/ui/container";
-import { LinkButton } from "@/components/ui/button";
+import { LinkButton, Button } from "@/components/ui/button";
 import { MobileNav } from "@/components/mobile-nav";
+import { auth, signOut } from "@/lib/auth";
 
 const NAV_LINKS = [
   { href: "/chat", label: "Chat" },
@@ -11,12 +12,15 @@ const NAV_LINKS = [
   { href: "/sources", label: "Source Library" },
 ];
 
-export function SiteHeader() {
+export async function SiteHeader() {
+  const session = await auth();
+  const user = session?.user;
+
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-paper/90 backdrop-blur">
       <Container className="relative flex h-16 items-center justify-between gap-2">
         <div className="flex items-center gap-3">
-          <MobileNav />
+          <MobileNav isSignedIn={!!user} />
           <Link
             href="/"
             className="flex shrink-0 items-center gap-2 whitespace-nowrap font-semibold text-navy-950"
@@ -41,9 +45,35 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-          <LinkButton href="/sign-in" variant="ghost" className="hidden lg:inline-flex">
-            Sign in
-          </LinkButton>
+          {user ? (
+            <div className="hidden items-center gap-3 lg:flex">
+              {user.role === "admin" && (
+                <Link
+                  href="/admin/ingestion"
+                  className="text-sm font-medium text-ink/80 hover:text-navy-950"
+                >
+                  Admin
+                </Link>
+              )}
+              <span className="max-w-[10rem] truncate text-sm text-ink/70" title={user.email ?? undefined}>
+                {user.name ?? user.email}
+              </span>
+              <form
+                action={async () => {
+                  "use server";
+                  await signOut({ redirectTo: "/" });
+                }}
+              >
+                <Button type="submit" variant="ghost" className="px-3 py-2">
+                  Sign out
+                </Button>
+              </form>
+            </div>
+          ) : (
+            <LinkButton href="/sign-in" variant="ghost" className="hidden lg:inline-flex">
+              Sign in
+            </LinkButton>
+          )}
           <LinkButton
             href="/chat"
             variant="primary"

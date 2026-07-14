@@ -4,17 +4,19 @@ import { useState } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/cn";
 
-const NAV_LINKS = [
+const BASE_NAV_LINKS = [
   { href: "/chat", label: "Chat" },
   { href: "/advisory", label: "Advisory" },
   { href: "/learning", label: "Learning" },
   { href: "/compute", label: "Compute" },
   { href: "/sources", label: "Source Library" },
-  { href: "/sign-in", label: "Sign in" },
 ];
 
-export function MobileNav() {
+export function MobileNav({ isSignedIn }: { isSignedIn: boolean }) {
   const [open, setOpen] = useState(false);
+  const navLinks = isSignedIn
+    ? BASE_NAV_LINKS
+    : [...BASE_NAV_LINKS, { href: "/sign-in", label: "Sign in" }];
 
   return (
     <div className="lg:hidden">
@@ -34,7 +36,7 @@ export function MobileNav() {
       {open && (
         <div className="absolute inset-x-0 top-16 z-30 border-b border-line bg-paper shadow-sm">
           <nav className="flex flex-col px-4 py-2">
-            {NAV_LINKS.map((link) => (
+            {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
