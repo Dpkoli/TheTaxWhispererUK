@@ -79,6 +79,13 @@ const CALCULATORS = [
     description:
       "Merged RDEC scheme: gross credit and net cash benefit after Corporation Tax on the credit itself.",
   },
+  {
+    href: "/compute/ir35",
+    title: "IR35 / Off-Payroll",
+    status: "Available",
+    description:
+      "Full 8-step deemed employment payment calculation (Chapter 8, own-intermediary) including employer NIC grossing-up.",
+  },
 ];
 
 export default function ComputePage() {

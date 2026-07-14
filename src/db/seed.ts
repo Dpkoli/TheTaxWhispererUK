@@ -485,6 +485,38 @@ async function main() {
     lastVerifiedAt: now,
   });
 
+  const itepaS54 = await upsertSource({
+    slug: "itepa-2003-s54",
+    sourceType: "act",
+    title: "Income Tax (Earnings and Pensions) Act 2003, s.54 — Calculation of deemed employment payment",
+    citationCode: "ITEPA 2003 s.54",
+    officialUrl: "https://www.legislation.gov.uk/ukpga/2003/1/section/54",
+    jurisdiction: "uk",
+    effectiveFrom: "2003-04-06",
+    summaryPlainEnglish:
+      "Sets out the 8-step statutory calculation an intermediary (the worker's own company) must use under Chapter 8 IR35 rules to work out the deemed employment payment: starting from fee income less a flat 5% deduction, adding/deducting situational items, and finishing with an employer National Insurance grossing-up step.",
+    fullTextExtract:
+      "The deemed employment payment for a tax year is calculated by taking the Step One amount and following the process in steps 2 to 8... Step One: find the amount of all payments and benefits received by the intermediary in the year in respect of the relevant engagements, and reduce that amount by 5%.",
+    status: "in_force",
+    lastVerifiedAt: now,
+  });
+
+  const govukDeemedEmploymentPayment = await upsertSource({
+    slug: "govuk-deemed-employment-payment",
+    sourceType: "govuk_guidance",
+    title: "How to calculate the deemed employment payment",
+    citationCode: "GOV.UK, How to calculate the deemed employment payment",
+    officialUrl: "https://www.gov.uk/guidance/how-to-calculate-the-deemed-employment-payment",
+    jurisdiction: "uk",
+    effectiveFrom: "2003-04-06",
+    summaryPlainEnglish:
+      "HMRC's worked guidance on the 8-step deemed employment payment calculation, including the employer National Insurance grossing-up mechanism at step 8: finding the deemed payment figure which, together with the employer NIC due on it, equals the step 7 result.",
+    fullTextExtract:
+      "Step 8: deduct the amount of employer National Insurance contributions due on the deemed payment. Because the deemed payment and the NIC on it are interdependent, this step uses a grossing-up calculation to find the correct figures.",
+    status: "in_force",
+    lastVerifiedAt: now,
+  });
+
   const incomeTaxTopic = await db.query.topics.findFirst({
     where: eq(topics.slug, "income-tax-personal-allowance"),
   });
@@ -559,6 +591,13 @@ async function main() {
     difficultyLevel: "intermediate",
   });
 
+  const ir35Topic = await upsertTopic({
+    slug: "ir35-deemed-payment",
+    name: "IR35: deemed employment payment",
+    taxArea: "ir35",
+    difficultyLevel: "advanced",
+  });
+
   const topicSourceLinks: (typeof topicSources.$inferInsert)[] = [
     ...(incomeTaxTopic
       ? [
@@ -599,6 +638,8 @@ async function main() {
     },
     { topicId: rdReliefTopic.id, sourceId: cta2009Part13.id, relevance: "primary" },
     { topicId: rdReliefTopic.id, sourceId: govukRdReliefMergedScheme.id, relevance: "primary" },
+    { topicId: ir35Topic.id, sourceId: itepaS54.id, relevance: "primary" },
+    { topicId: ir35Topic.id, sourceId: govukDeemedEmploymentPayment.id, relevance: "primary" },
   ];
 
   for (const link of topicSourceLinks) {
@@ -859,6 +900,21 @@ async function main() {
     values: {
       creditRate: 0.2,
       corporationTaxRate: 0.25,
+    },
+  });
+
+  await upsertRateTable({
+    taxArea: "ir35",
+    taxYear: "2026-27",
+    jurisdiction: "uk",
+    effectiveFrom: "2026-04-06",
+    effectiveTo: "2027-04-05",
+    sourceId: govukDeemedEmploymentPayment.id,
+    status: "published",
+    values: {
+      flatRateDeduction: 0.05,
+      employerNicRate: 0.15,
+      employerNicSecondaryThreshold: 5000,
     },
   });
 

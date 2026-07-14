@@ -9,6 +9,7 @@ import type { VatResult } from "./vat";
 import type { CouncilTaxResult } from "./council-tax";
 import type { BusinessRatesResult } from "./business-rates";
 import type { RdReliefResult } from "./rd-relief";
+import type { Ir35Result } from "./ir35-deemed-payment";
 
 const currency = new Intl.NumberFormat("en-GB", {
   style: "currency",
@@ -193,4 +194,21 @@ export function narrateBusinessRatesResult(result: BusinessRatesResult) {
  */
 export function narrateRdReliefResult(result: RdReliefResult) {
   return `On ${currency.format(result.qualifyingExpenditure)} of qualifying R&D expenditure, the R&D Expenditure Credit is ${currency.format(result.grossCredit)}. Because that credit is itself taxable, ${currency.format(result.taxOnCredit)} of Corporation Tax applies to it, leaving a net cash benefit of ${currency.format(result.netCashBenefit)}.`;
+}
+
+/**
+ * Deterministic, template-based write-up of an already-computed IR35
+ * deemed employment payment result — plain string formatting over real
+ * numbers, not free-form generation.
+ */
+export function narrateIr35Result(result: Ir35Result) {
+  const lines = [
+    `The deemed employment payment works out to ${currency.format(result.deemedPayment)}, with ${currency.format(result.employerNicOnDeemedPayment)} of employer National Insurance due on top of it.`,
+  ];
+
+  lines.push(
+    "The deemed payment itself is then subject to Income Tax and employee Class 1 National Insurance in the normal way — run it through those calculators separately to get the worker's actual take-home figure.",
+  );
+
+  return lines.join(" ");
 }
