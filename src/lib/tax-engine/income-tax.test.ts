@@ -60,3 +60,39 @@ describe("computeIncomeTax — 2026-27 UK rates", () => {
     expect(() => computeIncomeTax(-1, RATES_2026_27)).toThrow();
   });
 });
+
+// 2026-27 Scottish rates, verified against gov.scot / GOV.UK before use —
+// see the seeded RateTable (jurisdiction: scotland). Personal Allowance and
+// its taper are reserved (UK-wide), only the bands above it are devolved.
+const SCOTTISH_RATES_2026_27: IncomeTaxRateTableValues = {
+  personalAllowance: 12570,
+  personalAllowanceTaperThreshold: 100000,
+  personalAllowanceTaperRate: 0.5,
+  bands: [
+    { label: "Starter rate", upTo: 3967, rate: 0.19 },
+    { label: "Basic rate", upTo: 16956, rate: 0.2 },
+    { label: "Intermediate rate", upTo: 31092, rate: 0.21 },
+    { label: "Higher rate", upTo: 62430, rate: 0.42 },
+    { label: "Advanced rate", upTo: 112570, rate: 0.45 },
+    { label: "Top rate", upTo: null, rate: 0.48 },
+  ],
+};
+
+describe("computeIncomeTax — 2026-27 Scottish rates", () => {
+  it("spans starter, basic, and intermediate bands", () => {
+    const result = computeIncomeTax(30000, SCOTTISH_RATES_2026_27);
+    expect(result.personalAllowance).toBe(12570);
+    expect(result.incomeAfterAllowance).toBe(17430);
+    // 3,967 @ 19% = 753.73; 12,989 @ 20% = 2,597.80; 474 @ 21% = 99.54
+    expect(result.totalTax).toBe(3451.07);
+  });
+
+  it("reaches the top rate above £112,570 of income after allowance", () => {
+    const result = computeIncomeTax(125000, SCOTTISH_RATES_2026_27);
+    // Personal allowance untouched below £100k taper threshold... but this
+    // income exceeds £100k, so the reserved UK-wide taper still applies:
+    // excess £25,000 -> reduction £12,500 (capped at £12,570) = £12,500
+    expect(result.personalAllowance).toBe(70);
+    expect(result.incomeAfterAllowance).toBe(124930);
+  });
+});

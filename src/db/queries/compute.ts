@@ -3,8 +3,8 @@ import { db } from "@/db";
 import { rateTables, sources } from "@/db/schema";
 
 export async function getPublishedRateTable(
-  taxArea: "income_tax" | "nic" | "cgt",
-  jurisdiction: "uk",
+  taxArea: "income_tax" | "nic" | "cgt" | "iht" | "sdlt",
+  jurisdiction: "uk" | "scotland",
 ) {
   const row = await db
     .select({ rateTable: rateTables, source: sources })

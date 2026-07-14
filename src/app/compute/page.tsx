@@ -20,16 +20,24 @@ const CALCULATORS = [
       "Annual exempt amount and the basic/higher rate split based on your unused Income Tax basic rate band.",
   },
   {
-    href: null,
+    href: "/compute/inheritance-tax",
     title: "Inheritance Tax",
-    status: "Coming soon",
-    description: "Nil-rate band, residence nil-rate band, and reliefs.",
+    status: "Available",
+    description:
+      "Nil-rate band and residence nil-rate band (with its £2m taper) and transferable band from a predeceased spouse. Reliefs and gifts within 7 years coming soon.",
   },
   {
     href: "/compute/national-insurance",
     title: "National Insurance",
     status: "Available",
     description: "Class 1 (employee) contributions for a single employment. Class 2 and 4 (self-employed) are coming soon.",
+  },
+  {
+    href: "/compute/stamp-duty-land-tax",
+    title: "Stamp Duty Land Tax",
+    status: "Available",
+    description:
+      "Standard residential rates and first-time buyer relief for England/NI. LTT (Wales) and LBTT (Scotland) are coming soon.",
   },
 ];
 

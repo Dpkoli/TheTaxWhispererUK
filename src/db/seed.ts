@@ -121,6 +121,105 @@ async function main() {
     lastVerifiedAt: now,
   });
 
+  const govukScottishIncomeTaxRates = await upsertSource({
+    slug: "govuk-scottish-income-tax-rates-2026-27",
+    sourceType: "govuk_guidance",
+    title: "Income Tax in Scotland: Current rates",
+    citationCode: "GOV.UK, Income Tax in Scotland — current rates (2026-27)",
+    officialUrl: "https://www.gov.uk/scottish-income-tax",
+    jurisdiction: "scotland",
+    effectiveFrom: "2026-04-06",
+    effectiveTo: "2027-04-05",
+    summaryPlainEnglish:
+      "Scotland sets its own Income Tax bands under devolved powers. For 2026/27 there are six bands: Starter 19%, Basic 20%, Intermediate 21%, Higher 42%, Advanced 45%, and Top 48% — different from the three-band rest-of-UK structure, though the £12,570 Personal Allowance and its £100,000 taper are UK-wide.",
+    fullTextExtract:
+      "Scottish Income Tax rates 2026 to 2027: Starter rate 19% on taxable income £0-£3,967; Basic rate 20% on £3,967-£16,956; Intermediate rate 21% on £16,956-£31,092; Higher rate 42% on £31,092-£62,430; Advanced rate 45% on £62,430-£112,570; Top rate 48% above that.",
+    status: "in_force",
+    lastVerifiedAt: now,
+  });
+
+  const ihtS7 = await upsertSource({
+    slug: "iht-1984-s7",
+    sourceType: "act",
+    title: "Inheritance Tax Act 1984, s.7 — Rates",
+    citationCode: "IHTA 1984 s.7",
+    officialUrl: "https://www.legislation.gov.uk/ukpga/1984/51/section/7",
+    jurisdiction: "uk",
+    effectiveFrom: "1984-01-01",
+    summaryPlainEnglish:
+      "Sets the rate of Inheritance Tax charged on the value of a chargeable transfer above the nil-rate band, by reference to the Table in Schedule 1 — currently a flat 40% on death.",
+    fullTextExtract:
+      "Tax is charged... at the rate or rates in the second column of the Table in Schedule 1 to this Act, so far as the value is within the band set out in the corresponding entry in the first column.",
+    status: "in_force",
+    lastVerifiedAt: now,
+  });
+
+  const ihtS8d = await upsertSource({
+    slug: "iht-1984-s8d",
+    sourceType: "act",
+    title: "Inheritance Tax Act 1984, s.8D — Residence nil-rate band",
+    citationCode: "IHTA 1984 s.8D",
+    officialUrl: "https://www.legislation.gov.uk/ukpga/1984/51/section/8D",
+    jurisdiction: "uk",
+    effectiveFrom: "2017-04-06",
+    summaryPlainEnglish:
+      "Gives an additional nil-rate band (the residence nil-rate band) where a qualifying residential interest is closely inherited by direct descendants, on top of the standard nil-rate band. Inserted by Finance (No. 2) Act 2015.",
+    fullTextExtract:
+      "Section 8D: where a person's estate includes a qualifying residential interest which is closely inherited, an additional nil-rate amount is available, up to the residence nil-rate band for the tax year.",
+    status: "in_force",
+    lastVerifiedAt: now,
+  });
+
+  const govukIhtThresholds = await upsertSource({
+    slug: "govuk-iht-thresholds-2026-27",
+    sourceType: "govuk_guidance",
+    title: "Inheritance Tax: thresholds and rates",
+    citationCode: "GOV.UK, Inheritance Tax thresholds and rates (2026-27)",
+    officialUrl: "https://www.gov.uk/inheritance-tax",
+    jurisdiction: "uk",
+    effectiveFrom: "2026-04-06",
+    effectiveTo: "2027-04-05",
+    summaryPlainEnglish:
+      "For 2026/27 the standard nil-rate band is £325,000 (frozen since 2009, confirmed frozen until at least April 2030). The residence nil-rate band is up to £175,000, tapered away by £1 for every £2 the estate exceeds £2 million. Both bands can be transferred between spouses/civil partners. The rate above the available bands is 40%.",
+    fullTextExtract:
+      "Nil-rate band: £325,000. Residence nil-rate band: £175,000 (maximum). Residence nil-rate band taper: reduced by £1 for every £2 the estate is worth more than £2 million. Inheritance Tax rate: 40% on the value above the available thresholds.",
+    status: "in_force",
+    lastVerifiedAt: now,
+  });
+
+  const fa2003S55 = await upsertSource({
+    slug: "fa2003-s55",
+    sourceType: "act",
+    title: "Finance Act 2003, s.55 — Amount of tax chargeable",
+    citationCode: "FA 2003 s.55",
+    officialUrl: "https://www.legislation.gov.uk/ukpga/2003/14/section/55",
+    jurisdiction: "uk",
+    effectiveFrom: "2003-07-10",
+    summaryPlainEnglish:
+      'Sets how Stamp Duty Land Tax is calculated on a land transaction: Table A applies to wholly residential property, charging each rate of tax on the portion of the price within that band and adding the amounts together (a "slice" system, not a slab).',
+    fullTextExtract:
+      "The amount of tax chargeable... is calculated by applying the rate or rates specified in the applicable Table to the parts of the relevant consideration, and adding together the amounts so produced.",
+    status: "in_force",
+    lastVerifiedAt: now,
+  });
+
+  const govukSdltRates = await upsertSource({
+    slug: "govuk-sdlt-rates-2026-27",
+    sourceType: "govuk_guidance",
+    title: "Stamp Duty Land Tax: Residential property rates",
+    citationCode: "GOV.UK, SDLT residential property rates (2026-27)",
+    officialUrl: "https://www.gov.uk/stamp-duty-land-tax/residential-property-rates",
+    jurisdiction: "uk",
+    effectiveFrom: "2026-04-06",
+    effectiveTo: "2027-04-05",
+    summaryPlainEnglish:
+      "For 2026/27, standard residential SDLT (England/NI) is charged in slices: 0% to £125,000, 2% to £250,000, 5% to £925,000, 10% to £1,500,000, 12% above. First-time buyers pay 0% up to £300,000 and 5% up to £500,000, with no relief at all above £500,000 (standard rates then apply to the whole price).",
+    fullTextExtract:
+      "Residential rates from 1 April 2025: 0% up to £125,000; 2% from £125,001 to £250,000; 5% from £250,001 to £925,000; 10% from £925,001 to £1,500,000; 12% above £1,500,000. First-time buyer relief: 0% up to £300,000; 5% from £300,001 to £500,000; no relief above £500,000.",
+    status: "in_force",
+    lastVerifiedAt: now,
+  });
+
   const incomeTaxTopic = await db.query.topics.findFirst({
     where: eq(topics.slug, "income-tax-personal-allowance"),
   });
@@ -139,14 +238,40 @@ async function main() {
     difficultyLevel: "foundational",
   });
 
+  const ihtTopic = await upsertTopic({
+    slug: "inheritance-tax-nil-rate-bands",
+    name: "Inheritance Tax: nil-rate bands",
+    taxArea: "iht",
+    difficultyLevel: "foundational",
+  });
+
+  const sdltTopic = await upsertTopic({
+    slug: "sdlt-residential-rates",
+    name: "Stamp Duty Land Tax: residential rates",
+    taxArea: "sdlt",
+    difficultyLevel: "foundational",
+  });
+
   const topicSourceLinks: (typeof topicSources.$inferInsert)[] = [
     ...(incomeTaxTopic
-      ? [{ topicId: incomeTaxTopic.id, sourceId: itaS58.id, relevance: "supporting" as const }]
+      ? [
+          { topicId: incomeTaxTopic.id, sourceId: itaS58.id, relevance: "supporting" as const },
+          {
+            topicId: incomeTaxTopic.id,
+            sourceId: govukScottishIncomeTaxRates.id,
+            relevance: "supporting" as const,
+          },
+        ]
       : []),
     { topicId: nicTopic.id, sourceId: sscbaS6.id, relevance: "primary" },
     { topicId: nicTopic.id, sourceId: govukNiRates.id, relevance: "primary" },
     { topicId: cgtTopic.id, sourceId: tcgaS1k.id, relevance: "primary" },
     { topicId: cgtTopic.id, sourceId: govukCgtRates.id, relevance: "primary" },
+    { topicId: ihtTopic.id, sourceId: ihtS7.id, relevance: "primary" },
+    { topicId: ihtTopic.id, sourceId: ihtS8d.id, relevance: "primary" },
+    { topicId: ihtTopic.id, sourceId: govukIhtThresholds.id, relevance: "primary" },
+    { topicId: sdltTopic.id, sourceId: fa2003S55.id, relevance: "primary" },
+    { topicId: sdltTopic.id, sourceId: govukSdltRates.id, relevance: "primary" },
   ];
 
   for (const link of topicSourceLinks) {
@@ -187,6 +312,69 @@ async function main() {
       annualExemptAmount: 3000,
       basicRate: 0.18,
       higherRate: 0.24,
+    },
+  });
+
+  await upsertRateTable({
+    taxArea: "income_tax",
+    taxYear: "2026-27",
+    jurisdiction: "scotland",
+    effectiveFrom: "2026-04-06",
+    effectiveTo: "2027-04-05",
+    sourceId: govukScottishIncomeTaxRates.id,
+    status: "published",
+    values: {
+      personalAllowance: 12570,
+      personalAllowanceTaperThreshold: 100000,
+      personalAllowanceTaperRate: 0.5,
+      bands: [
+        { label: "Starter rate", upTo: 3967, rate: 0.19 },
+        { label: "Basic rate", upTo: 16956, rate: 0.2 },
+        { label: "Intermediate rate", upTo: 31092, rate: 0.21 },
+        { label: "Higher rate", upTo: 62430, rate: 0.42 },
+        { label: "Advanced rate", upTo: 112570, rate: 0.45 },
+        { label: "Top rate", upTo: null, rate: 0.48 },
+      ],
+    },
+  });
+
+  await upsertRateTable({
+    taxArea: "iht",
+    taxYear: "2026-27",
+    jurisdiction: "uk",
+    effectiveFrom: "2026-04-06",
+    effectiveTo: "2027-04-05",
+    sourceId: govukIhtThresholds.id,
+    status: "published",
+    values: {
+      nilRateBand: 325000,
+      residenceNilRateBand: 175000,
+      residenceTaperThreshold: 2000000,
+      rate: 0.4,
+    },
+  });
+
+  await upsertRateTable({
+    taxArea: "sdlt",
+    taxYear: "2026-27",
+    jurisdiction: "uk",
+    effectiveFrom: "2026-04-06",
+    effectiveTo: "2027-04-05",
+    sourceId: govukSdltRates.id,
+    status: "published",
+    values: {
+      standardBands: [
+        { label: "Up to £125,000", upTo: 125000, rate: 0 },
+        { label: "£125,001 to £250,000", upTo: 250000, rate: 0.02 },
+        { label: "£250,001 to £925,000", upTo: 925000, rate: 0.05 },
+        { label: "£925,001 to £1,500,000", upTo: 1500000, rate: 0.1 },
+        { label: "Above £1,500,000", upTo: null, rate: 0.12 },
+      ],
+      firstTimeBuyerBands: [
+        { label: "Up to £300,000", upTo: 300000, rate: 0 },
+        { label: "£300,001 to £500,000", upTo: 500000, rate: 0.05 },
+      ],
+      firstTimeBuyerReliefCeiling: 500000,
     },
   });
 

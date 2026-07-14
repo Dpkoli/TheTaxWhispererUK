@@ -10,15 +10,18 @@ import { narrateIncomeTaxResult } from "@/lib/tax-engine/narrative";
 
 export async function runIncomeTaxComputation(
   taxableIncome: number,
+  jurisdiction: "uk" | "scotland" = "uk",
   sourceExtractionId?: string,
 ) {
   if (!Number.isFinite(taxableIncome) || taxableIncome < 0) {
     throw new Error("Enter a valid, non-negative income figure");
   }
 
-  const rateTableRow = await getPublishedRateTable("income_tax", "uk");
+  const rateTableRow = await getPublishedRateTable("income_tax", jurisdiction);
   if (!rateTableRow) {
-    throw new Error("No published Income Tax rate table is available");
+    throw new Error(
+      `No published Income Tax rate table is available for ${jurisdiction === "scotland" ? "Scotland" : "the UK"}`,
+    );
   }
 
   const { rateTable, source } = rateTableRow;
@@ -36,7 +39,7 @@ export async function runIncomeTaxComputation(
         userId: session.user.id,
         taxArea: "income_tax",
         rateTableId: rateTable.id,
-        inputSnapshot: { taxableIncome },
+        inputSnapshot: { taxableIncome, jurisdiction },
         outputBreakdown: result,
         narrativeExplanation: narrative,
         status: "confirmed",

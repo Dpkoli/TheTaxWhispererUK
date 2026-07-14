@@ -1,6 +1,8 @@
 import type { IncomeTaxResult } from "./income-tax";
 import type { NationalInsuranceResult } from "./national-insurance";
 import type { CapitalGainsTaxResult } from "./capital-gains-tax";
+import type { InheritanceTaxResult } from "./inheritance-tax";
+import type { SdltResult } from "./stamp-duty-land-tax";
 
 const currency = new Intl.NumberFormat("en-GB", {
   style: "currency",
@@ -63,6 +65,38 @@ export function narrateCapitalGainsTaxResult(result: CapitalGainsTaxResult, taxY
       `Because you have ${currency.format(result.unusedBasicRateBand)} of unused basic rate band left after your other income, ${currency.format(Math.min(result.taxableGains, result.unusedBasicRateBand))} of the gain is taxed at the basic rate and the rest at the higher rate, giving a total Capital Gains Tax liability of ${currency.format(result.totalTax)}.`,
     );
   }
+
+  return lines.join(" ");
+}
+
+/**
+ * Deterministic, template-based write-up of an already-computed
+ * Inheritance Tax result — plain string formatting over real numbers, not
+ * free-form generation.
+ */
+export function narrateInheritanceTaxResult(result: InheritanceTaxResult) {
+  const lines = [
+    `Your net estate of ${currency.format(result.netEstateValue)} has ${currency.format(result.totalNilRateBand)} of nil-rate band available (${currency.format(result.nilRateBandAvailable)} standard nil-rate band plus ${currency.format(result.residenceNilRateBandAvailable)} residence nil-rate band), leaving ${currency.format(result.taxableEstate)} chargeable.`,
+  ];
+
+  lines.push(
+    result.totalTax > 0
+      ? `That gives a total Inheritance Tax liability of ${currency.format(result.totalTax)} at the standard 40% rate.`
+      : "That means no Inheritance Tax is due on this estate as computed.",
+  );
+
+  return lines.join(" ");
+}
+
+/**
+ * Deterministic, template-based write-up of an already-computed Stamp Duty
+ * Land Tax result — plain string formatting over real numbers, not
+ * free-form generation.
+ */
+export function narrateSdltResult(result: SdltResult) {
+  const lines = [
+    `On a purchase price of ${currency.format(result.purchasePrice)}${result.isFirstTimeBuyer ? ", using first-time buyer relief bands," : ""} the Stamp Duty Land Tax due is ${currency.format(result.totalTax)} — an effective rate of ${(result.effectiveRate * 100).toFixed(1)}% of the purchase price.`,
+  ];
 
   return lines.join(" ");
 }

@@ -36,6 +36,7 @@ function downloadCsv(result: ComputationResult) {
 export function IncomeTaxForm({ isGuest }: { isGuest: boolean }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [income, setIncome] = useState("");
+  const [jurisdiction, setJurisdiction] = useState<"uk" | "scotland">("uk");
   const [result, setResult] = useState<ComputationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -82,7 +83,7 @@ export function IncomeTaxForm({ isGuest }: { isGuest: boolean }) {
     setError(null);
     startTransition(async () => {
       try {
-        const res = await runIncomeTaxComputation(parsed, extraction?.extractionId);
+        const res = await runIncomeTaxComputation(parsed, jurisdiction, extraction?.extractionId);
         setResult(res);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Something went wrong.");
@@ -153,6 +154,20 @@ export function IncomeTaxForm({ isGuest }: { isGuest: boolean }) {
               placeholder="e.g. 110000"
               className="mt-1.5 w-full rounded-md border border-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
             />
+          </div>
+          <div>
+            <label htmlFor="jurisdiction" className="text-sm font-medium text-ink/80">
+              Jurisdiction
+            </label>
+            <select
+              id="jurisdiction"
+              value={jurisdiction}
+              onChange={(event) => setJurisdiction(event.target.value as "uk" | "scotland")}
+              className="mt-1.5 rounded-md border border-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+            >
+              <option value="uk">Rest of UK</option>
+              <option value="scotland">Scotland</option>
+            </select>
           </div>
           <Button type="submit" variant="primary" disabled={isPending || !income}>
             {isPending ? "Computing…" : "Compute"}
