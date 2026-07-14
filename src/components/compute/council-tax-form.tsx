@@ -38,6 +38,8 @@ function downloadCsv(result: ComputationResult) {
 export function CouncilTaxForm({ isGuest }: { isGuest: boolean }) {
   const [band, setBand] = useState<CouncilTaxBand>("D");
   const [bandDCharge, setBandDCharge] = useState("");
+  const [isSinglePersonDiscount, setIsSinglePersonDiscount] = useState(false);
+  const [emptyUnfurnishedMonths, setEmptyUnfurnishedMonths] = useState("0");
   const [result, setResult] = useState<ComputationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -45,14 +47,24 @@ export function CouncilTaxForm({ isGuest }: { isGuest: boolean }) {
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     const parsed = Number(bandDCharge);
+    const parsedMonths = Number(emptyUnfurnishedMonths || 0);
     if (!Number.isFinite(parsed) || parsed < 0) {
       setError("Enter a valid, non-negative Band D charge.");
+      return;
+    }
+    if (!Number.isFinite(parsedMonths) || parsedMonths < 0) {
+      setError("Enter a valid, non-negative number of months empty.");
       return;
     }
     setError(null);
     startTransition(async () => {
       try {
-        const res = await runCouncilTaxComputation(band, parsed);
+        const res = await runCouncilTaxComputation(
+          band,
+          parsed,
+          isSinglePersonDiscount,
+          parsedMonths,
+        );
         setResult(res);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Something went wrong.");
@@ -96,6 +108,32 @@ export function CouncilTaxForm({ isGuest }: { isGuest: boolean }) {
               className="mt-1.5 w-full rounded-md border border-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
             />
           </div>
+          <div className="flex items-center gap-2">
+            <input
+              id="single-person-discount"
+              type="checkbox"
+              checked={isSinglePersonDiscount}
+              onChange={(event) => setIsSinglePersonDiscount(event.target.checked)}
+              className="h-4 w-4 rounded border-line"
+            />
+            <label htmlFor="single-person-discount" className="text-sm text-ink/80">
+              Single adult occupant (25% discount)
+            </label>
+          </div>
+          <div>
+            <label htmlFor="empty-months" className="text-sm font-medium text-ink/80">
+              Months empty &amp; unfurnished
+            </label>
+            <input
+              id="empty-months"
+              type="number"
+              min={0}
+              step="1"
+              value={emptyUnfurnishedMonths}
+              onChange={(event) => setEmptyUnfurnishedMonths(event.target.value)}
+              className="mt-1.5 w-28 rounded-md border border-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+            />
+          </div>
           <Button type="submit" variant="primary" disabled={isPending || !bandDCharge}>
             {isPending ? "Computing…" : "Compute"}
           </Button>
@@ -105,7 +143,9 @@ export function CouncilTaxForm({ isGuest }: { isGuest: boolean }) {
           Applies the statutory Band A-H ratios to whatever Band D charge
           you enter — the Band D figure itself is set annually by each of
           England&apos;s ~300 billing authorities individually, so there is
-          no single UK-wide amount this tool can look up for you.
+          no single UK-wide amount this tool can look up for you. The
+          single person discount and empty homes premium are discretionary
+          for your billing authority; this models the statutory maximum.
         </p>
       </Card>
 

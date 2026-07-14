@@ -452,6 +452,38 @@ async function main() {
     lastVerifiedAt: now,
   });
 
+  const lgfa1992S11 = await upsertSource({
+    slug: "lgfa-1992-s11-s11b",
+    sourceType: "act",
+    title: "Local Government Finance Act 1992, ss.11 and 11B — Discounts and the long-term empty homes premium",
+    citationCode: "LGFA 1992 ss.11, 11B",
+    officialUrl: "https://www.legislation.gov.uk/ukpga/1992/14/section/11",
+    jurisdiction: "uk",
+    effectiveFrom: "1993-04-01",
+    summaryPlainEnglish:
+      "Section 11(1)(a) gives a 25% Council Tax discount where a dwelling has only one adult resident. Section 11B (as amended by the Levelling-up and Regeneration Act 2023, in force from 1 April 2026) lets billing authorities charge a premium of up to 100% on homes empty and unfurnished for 1-5 years, up to 200% for 5-10 years, and up to 300% for over 10 years — discretionary, not mandatory nationally.",
+    fullTextExtract:
+      "Where on any day there is one resident of a dwelling, the amount of council tax payable shall be subject to a discount equal to 25% of the amount which would otherwise be payable. A billing authority may, in accordance with regulations, charge a premium in respect of a dwelling which has been unoccupied and substantially unfurnished for a continuous period of at least the specified number of years, at the rate specified for that period.",
+    status: "in_force",
+    lastVerifiedAt: now,
+  });
+
+  const govukEmptyPropertyRelief = await upsertSource({
+    slug: "govuk-business-rates-empty-property-relief",
+    sourceType: "govuk_guidance",
+    title: "Business rates relief: Empty property relief",
+    citationCode: "GOV.UK, Empty property relief",
+    officialUrl: "https://www.gov.uk/business-rates-relief/empty-property-relief",
+    jurisdiction: "uk",
+    effectiveFrom: "2017-04-01",
+    summaryPlainEnglish:
+      "Explains empty property relief: a full exemption from business rates for the first 3 months a non-domestic property is empty (6 months for qualifying industrial premises), and a permanent exemption regardless of duration for properties with a rateable value below £2,900.",
+    fullTextExtract:
+      "You do not have to pay business rates on empty buildings for 3 months. After this time, most businesses must pay full business rates. Some properties can get extended empty property relief: industrial premises (for example warehouses) are exempt for a further 3 months. An unoccupied property is exempt from business rates where the rateable value is less than £2,900.",
+    status: "in_force",
+    lastVerifiedAt: now,
+  });
+
   const cta2009Part13 = await upsertSource({
     slug: "cta-2009-part13",
     sourceType: "act",
@@ -764,6 +796,8 @@ async function main() {
     { topicId: nicClass4Topic.id, sourceId: govukClass4NicRates.id, relevance: "primary" },
     { topicId: councilTaxTopic.id, sourceId: lgfa1992Sch1.id, relevance: "primary" },
     { topicId: councilTaxTopic.id, sourceId: govukCouncilTaxBands.id, relevance: "primary" },
+    { topicId: councilTaxTopic.id, sourceId: lgfa1992S11.id, relevance: "supporting" },
+    { topicId: businessRatesTopic.id, sourceId: govukEmptyPropertyRelief.id, relevance: "supporting" },
     { topicId: businessRatesTopic.id, sourceId: lgfa1988S43.id, relevance: "primary" },
     {
       topicId: businessRatesTopic.id,
@@ -1008,6 +1042,12 @@ async function main() {
         G: 15 / 9,
         H: 2,
       },
+      singlePersonDiscountPercent: 25,
+      emptyPropertyPremiumBands: [
+        { minMonths: 12, premiumPercent: 100 },
+        { minMonths: 60, premiumPercent: 200 },
+        { minMonths: 120, premiumPercent: 300 },
+      ],
     },
   });
 
@@ -1027,6 +1067,9 @@ async function main() {
       smallBusinessThreshold: 51000,
       smallBusinessRateReliefFullThreshold: 12000,
       smallBusinessRateReliefTaperCeiling: 15000,
+      emptyPropertyReliefMonths: 3,
+      emptyPropertyReliefIndustrialExtraMonths: 3,
+      emptyPropertyExemptionThreshold: 2900,
     },
   });
 

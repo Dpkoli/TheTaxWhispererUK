@@ -13,9 +13,15 @@ import { narrateBusinessRatesResult } from "@/lib/tax-engine/narrative";
 export async function runBusinessRatesComputation(
   rateableValue: number,
   isRetailHospitalityLeisure: boolean,
+  isEmpty = false,
+  monthsEmpty = 0,
+  isIndustrial = false,
 ) {
   if (!Number.isFinite(rateableValue) || rateableValue < 0) {
     throw new Error("Enter a valid, non-negative rateable value");
+  }
+  if (!Number.isFinite(monthsEmpty) || monthsEmpty < 0) {
+    throw new Error("Enter a valid, non-negative number of months empty");
   }
 
   const rateTableRow = await getPublishedRateTable("business_rates", "uk");
@@ -25,7 +31,11 @@ export async function runBusinessRatesComputation(
 
   const { rateTable, source } = rateTableRow;
   const values = rateTable.values as BusinessRatesRateTableValues;
-  const result = computeBusinessRates(rateableValue, isRetailHospitalityLeisure, values);
+  const result = computeBusinessRates(rateableValue, isRetailHospitalityLeisure, values, {
+    isEmpty,
+    monthsEmpty,
+    isIndustrial,
+  });
   const narrative = narrateBusinessRatesResult(result);
 
   const session = await auth();
@@ -38,7 +48,13 @@ export async function runBusinessRatesComputation(
         userId: session.user.id,
         taxArea: "business_rates",
         rateTableId: rateTable.id,
-        inputSnapshot: { rateableValue, isRetailHospitalityLeisure },
+        inputSnapshot: {
+          rateableValue,
+          isRetailHospitalityLeisure,
+          isEmpty,
+          monthsEmpty,
+          isIndustrial,
+        },
         outputBreakdown: result,
         narrativeExplanation: narrative,
         status: "confirmed",

@@ -35,6 +35,9 @@ function downloadCsv(result: ComputationResult) {
 export function BusinessRatesForm({ isGuest }: { isGuest: boolean }) {
   const [rateableValue, setRateableValue] = useState("");
   const [isRhl, setIsRhl] = useState(false);
+  const [isEmpty, setIsEmpty] = useState(false);
+  const [monthsEmpty, setMonthsEmpty] = useState("0");
+  const [isIndustrial, setIsIndustrial] = useState(false);
   const [result, setResult] = useState<ComputationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -42,14 +45,25 @@ export function BusinessRatesForm({ isGuest }: { isGuest: boolean }) {
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     const parsed = Number(rateableValue);
+    const parsedMonths = Number(monthsEmpty || 0);
     if (!Number.isFinite(parsed) || parsed < 0) {
       setError("Enter a valid, non-negative rateable value.");
+      return;
+    }
+    if (!Number.isFinite(parsedMonths) || parsedMonths < 0) {
+      setError("Enter a valid, non-negative number of months empty.");
       return;
     }
     setError(null);
     startTransition(async () => {
       try {
-        const res = await runBusinessRatesComputation(parsed, isRhl);
+        const res = await runBusinessRatesComputation(
+          parsed,
+          isRhl,
+          isEmpty,
+          parsedMonths,
+          isIndustrial,
+        );
         setResult(res);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Something went wrong.");
@@ -85,6 +99,42 @@ export function BusinessRatesForm({ isGuest }: { isGuest: boolean }) {
             />
             Retail, hospitality, or leisure property
           </label>
+          <label className="flex items-center gap-2 text-sm text-ink/80">
+            <input
+              type="checkbox"
+              checked={isEmpty}
+              onChange={(event) => setIsEmpty(event.target.checked)}
+              className="rounded border-line"
+            />
+            Property is empty
+          </label>
+          {isEmpty && (
+            <>
+              <div>
+                <label htmlFor="months-empty" className="text-sm font-medium text-ink/80">
+                  Months empty
+                </label>
+                <input
+                  id="months-empty"
+                  type="number"
+                  min={0}
+                  step="1"
+                  value={monthsEmpty}
+                  onChange={(event) => setMonthsEmpty(event.target.value)}
+                  className="mt-1.5 w-24 rounded-md border border-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+                />
+              </div>
+              <label className="flex items-center gap-2 text-sm text-ink/80">
+                <input
+                  type="checkbox"
+                  checked={isIndustrial}
+                  onChange={(event) => setIsIndustrial(event.target.checked)}
+                  className="rounded border-line"
+                />
+                Industrial property
+              </label>
+            </>
+          )}
           <Button type="submit" variant="primary" disabled={isPending || !rateableValue}>
             {isPending ? "Computing…" : "Compute"}
           </Button>
@@ -93,7 +143,8 @@ export function BusinessRatesForm({ isGuest }: { isGuest: boolean }) {
         <p className="mt-3 text-xs leading-relaxed text-ink/50">
           Covers England, using your property&apos;s rateable value from
           the VOA rating list. Doesn&apos;t yet model Supporting Small
-          Business Relief, transitional relief, or empty property relief.
+          Business Relief or transitional relief (which caps year-on-year
+          increases after a revaluation).
         </p>
       </Card>
 

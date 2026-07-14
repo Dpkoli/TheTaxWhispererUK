@@ -168,7 +168,25 @@ export function narrateVatResult(result: VatResult) {
  * generation.
  */
 export function narrateCouncilTaxResult(result: CouncilTaxResult) {
-  return `A Band ${result.band} property pays ${result.ratio.toFixed(3)} of the Band D charge. On a Band D charge of ${currency.format(result.bandDCharge)}, that works out to ${currency.format(result.annualCharge)} for the year.`;
+  const lines = [
+    `A Band ${result.band} property pays ${result.ratio.toFixed(3)} of the Band D charge. On a Band D charge of ${currency.format(result.bandDCharge)}, that works out to ${currency.format(result.bandDCharge * result.ratio)} before any discounts or premiums.`,
+  ];
+
+  if (result.singlePersonDiscountAmount > 0) {
+    lines.push(
+      `The single person discount reduces that by ${currency.format(result.singlePersonDiscountAmount)}.`,
+    );
+  }
+
+  if (result.emptyPropertyPremiumAmount > 0) {
+    lines.push(
+      `A ${result.emptyPropertyPremiumPercent}% long-term empty homes premium adds ${currency.format(result.emptyPropertyPremiumAmount)}.`,
+    );
+  }
+
+  lines.push(`Total annual Council Tax due: ${currency.format(result.annualCharge)}.`);
+
+  return lines.join(" ");
 }
 
 /**
@@ -181,11 +199,17 @@ export function narrateBusinessRatesResult(result: BusinessRatesResult) {
     `On a rateable value of ${currency.format(result.rateableValue)} at a ${result.multiplierUsed.toFixed(3)} multiplier, the gross bill is ${currency.format(result.grossBill)}.`,
   ];
 
-  lines.push(
-    result.reliefAmount > 0
-      ? `Small Business Rate Relief of ${result.reliefPercent.toFixed(1)}% reduces that by ${currency.format(result.reliefAmount)}, leaving ${currency.format(result.netBill)} due for the year.`
-      : `No Small Business Rate Relief applies, leaving the full ${currency.format(result.netBill)} due for the year.`,
-  );
+  if (result.emptyPropertyReliefApplied) {
+    lines.push(
+      `The property qualifies for empty property relief (or is permanently exempt below the £2,900 threshold), leaving ${currency.format(result.netBill)} due for the year.`,
+    );
+  } else {
+    lines.push(
+      result.reliefAmount > 0
+        ? `Small Business Rate Relief of ${result.reliefPercent.toFixed(1)}% reduces that by ${currency.format(result.reliefAmount)}, leaving ${currency.format(result.netBill)} due for the year.`
+        : `No relief applies, leaving the full ${currency.format(result.netBill)} due for the year.`,
+    );
+  }
 
   return lines.join(" ");
 }

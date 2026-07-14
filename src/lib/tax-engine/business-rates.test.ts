@@ -14,6 +14,9 @@ const RATES: BusinessRatesRateTableValues = {
   smallBusinessThreshold: 51000,
   smallBusinessRateReliefFullThreshold: 12000,
   smallBusinessRateReliefTaperCeiling: 15000,
+  emptyPropertyReliefMonths: 3,
+  emptyPropertyReliefIndustrialExtraMonths: 3,
+  emptyPropertyExemptionThreshold: 2900,
 };
 
 describe("computeBusinessRates — 2026-27 England rates", () => {
@@ -51,5 +54,42 @@ describe("computeBusinessRates — 2026-27 England rates", () => {
 
   it("rejects a negative rateable value", () => {
     expect(() => computeBusinessRates(-1, false, RATES)).toThrow();
+  });
+
+  it("exempts an empty non-industrial property within the 3-month relief period", () => {
+    const result = computeBusinessRates(60000, false, RATES, {
+      isEmpty: true,
+      monthsEmpty: 2,
+    });
+    expect(result.emptyPropertyReliefApplied).toBe(true);
+    expect(result.netBill).toBe(0);
+  });
+
+  it("charges full rates on an empty property after the 3-month relief period", () => {
+    const result = computeBusinessRates(60000, false, RATES, {
+      isEmpty: true,
+      monthsEmpty: 4,
+    });
+    expect(result.emptyPropertyReliefApplied).toBe(false);
+    expect(result.netBill).toBe(result.grossBill);
+  });
+
+  it("extends the relief period to 6 months for an empty industrial property", () => {
+    const result = computeBusinessRates(60000, false, RATES, {
+      isEmpty: true,
+      monthsEmpty: 5,
+      isIndustrial: true,
+    });
+    expect(result.emptyPropertyReliefApplied).toBe(true);
+    expect(result.netBill).toBe(0);
+  });
+
+  it("permanently exempts an empty property below the £2,900 threshold regardless of duration", () => {
+    const result = computeBusinessRates(2000, false, RATES, {
+      isEmpty: true,
+      monthsEmpty: 36,
+    });
+    expect(result.emptyPropertyReliefApplied).toBe(true);
+    expect(result.netBill).toBe(0);
   });
 });

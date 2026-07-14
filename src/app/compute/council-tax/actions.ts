@@ -11,9 +11,17 @@ import {
 } from "@/lib/tax-engine/council-tax";
 import { narrateCouncilTaxResult } from "@/lib/tax-engine/narrative";
 
-export async function runCouncilTaxComputation(band: CouncilTaxBand, bandDCharge: number) {
+export async function runCouncilTaxComputation(
+  band: CouncilTaxBand,
+  bandDCharge: number,
+  isSinglePersonDiscount = false,
+  emptyUnfurnishedMonths = 0,
+) {
   if (!Number.isFinite(bandDCharge) || bandDCharge < 0) {
     throw new Error("Enter a valid, non-negative Band D charge");
+  }
+  if (!Number.isFinite(emptyUnfurnishedMonths) || emptyUnfurnishedMonths < 0) {
+    throw new Error("Enter a valid, non-negative number of months empty");
   }
 
   const rateTableRow = await getPublishedRateTable("council_tax", "uk");
@@ -23,7 +31,10 @@ export async function runCouncilTaxComputation(band: CouncilTaxBand, bandDCharge
 
   const { rateTable, source } = rateTableRow;
   const values = rateTable.values as CouncilTaxRateTableValues;
-  const result = computeCouncilTax(band, bandDCharge, values);
+  const result = computeCouncilTax(band, bandDCharge, values, {
+    isSinglePersonDiscount,
+    emptyUnfurnishedMonths,
+  });
   const narrative = narrateCouncilTaxResult(result);
 
   const session = await auth();
@@ -36,7 +47,7 @@ export async function runCouncilTaxComputation(band: CouncilTaxBand, bandDCharge
         userId: session.user.id,
         taxArea: "council_tax",
         rateTableId: rateTable.id,
-        inputSnapshot: { band, bandDCharge },
+        inputSnapshot: { band, bandDCharge, isSinglePersonDiscount, emptyUnfurnishedMonths },
         outputBreakdown: result,
         narrativeExplanation: narrative,
         status: "confirmed",
