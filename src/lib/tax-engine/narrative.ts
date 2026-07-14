@@ -11,6 +11,7 @@ import type { BusinessRatesResult } from "./business-rates";
 import type { RdReliefResult } from "./rd-relief";
 import type { Ir35Result } from "./ir35-deemed-payment";
 import type { Class2Class3Result } from "./nic-class2-class3";
+import type { Ir35Chapter10Result } from "./ir35-chapter10";
 
 const currency = new Intl.NumberFormat("en-GB", {
   style: "currency",
@@ -228,6 +229,23 @@ export function narrateClass2Class3Result(result: Class2Class3Result) {
 
   lines.push(
     `Paying voluntary Class 2 for ${result.weeks} weeks would cost ${currency.format(result.class2VoluntaryCost)}; the equivalent Class 3 top-up would cost ${currency.format(result.class3VoluntaryCost)} — Class 2 is the cheaper route wherever you're eligible to use it.`,
+  );
+
+  return lines.join(" ");
+}
+
+/**
+ * Deterministic, template-based write-up of an already-computed Chapter
+ * 10 off-payroll working result — plain string formatting over real
+ * numbers, not free-form generation.
+ */
+export function narrateIr35Chapter10Result(result: Ir35Chapter10Result) {
+  const lines = [
+    `The deemed direct payment is ${currency.format(result.deemedDirectPayment)}, subject to PAYE Income Tax and employee Class 1 NIC in the normal way — run it through those calculators separately for the worker's take-home figure.`,
+  ];
+
+  lines.push(
+    `On top of that, the fee-payer bears ${currency.format(result.employerNicOnPayment)} of employer NIC, bringing the total cost to the fee-payer to ${currency.format(result.totalCostToFeePayer)} — unlike Chapter 8, this employer NIC is an additional cost, not deducted from what the worker receives.`,
   );
 
   return lines.join(" ");

@@ -40,6 +40,7 @@ export const taxAreaEnum = pgEnum("tax_area", [
   "vat",
   "sdlt",
   "ir35",
+  "ir35_ch10",
   "r_and_d_relief",
   "transfer_pricing",
   "council_tax",

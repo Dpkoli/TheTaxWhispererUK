@@ -81,10 +81,17 @@ const CALCULATORS = [
   },
   {
     href: "/compute/ir35",
-    title: "IR35 / Off-Payroll",
+    title: "IR35 (Chapter 8)",
     status: "Available",
     description:
-      "Full 8-step deemed employment payment calculation (Chapter 8, own-intermediary) including employer NIC grossing-up.",
+      "Full 8-step deemed employment payment calculation for own-intermediary IR35 (small/no-UK-presence clients) including employer NIC grossing-up.",
+  },
+  {
+    href: "/compute/ir35-chapter10",
+    title: "IR35 / Off-Payroll (Chapter 10)",
+    status: "Available",
+    description:
+      "Fee-payer deemed direct payment calculation for medium/large and public sector clients — a different mechanism from Chapter 8, no grossing-up needed.",
   },
   {
     href: "/compute/nic-class2-class3",

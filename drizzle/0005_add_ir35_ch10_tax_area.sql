@@ -1,0 +1,1 @@
+ALTER TYPE "public"."tax_area" ADD VALUE 'ir35_ch10' BEFORE 'r_and_d_relief';

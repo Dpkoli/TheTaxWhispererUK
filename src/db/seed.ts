@@ -566,6 +566,38 @@ async function main() {
     lastVerifiedAt: now,
   });
 
+  const itepaS61n = await upsertSource({
+    slug: "itepa-2003-s61n",
+    sourceType: "act",
+    title: "Income Tax (Earnings and Pensions) Act 2003, s.61N — Worker treated as receiving earnings from employment",
+    citationCode: "ITEPA 2003 s.61N",
+    officialUrl: "https://www.legislation.gov.uk/ukpga/2003/1/section/61N",
+    jurisdiction: "uk",
+    effectiveFrom: "2021-04-06",
+    summaryPlainEnglish:
+      "Defines the \"chain payment\" for Chapter 10 off-payroll working: a payment (net of VAT) that can reasonably be taken to be for the worker's services to the client, where the client has determined the engagement is inside IR35 and the client is medium/large private sector or public sector.",
+    fullTextExtract:
+      "A chain payment is a payment, money's worth or any other benefit, that can reasonably be taken to be for the worker's services to the client... amounts in respect of value added tax are to be excluded.",
+    status: "in_force",
+    lastVerifiedAt: now,
+  });
+
+  const govukOffPayrollChapter10 = await upsertSource({
+    slug: "govuk-off-payroll-chapter10-2026-27",
+    sourceType: "govuk_guidance",
+    title: "Off-payroll working (IR35): fee-payer deductions",
+    citationCode: "GOV.UK, Off-payroll working fee-payer guidance (2026-27)",
+    officialUrl: "https://www.gov.uk/guidance/prepare-for-changes-to-the-off-payroll-working-rules-ir35",
+    jurisdiction: "uk",
+    effectiveFrom: "2021-04-06",
+    summaryPlainEnglish:
+      "Under Chapter 10, the fee-payer deducts Income Tax and employee Class 1 NIC from the chain payment (net of VAT and direct materials costs) via PAYE, exactly as for a direct employee. Employer Class 1 NIC is calculated separately and borne by the fee-payer on top — unlike Chapter 8, it is not deducted from the worker's payment via a grossing-up calculation.",
+    fullTextExtract:
+      "The fee-payer must deduct tax and employee National Insurance contributions from payments made to the worker's intermediary, and account for these to HMRC through PAYE. The fee-payer is also liable for employer National Insurance contributions on the deemed direct payment.",
+    status: "in_force",
+    lastVerifiedAt: now,
+  });
+
   const incomeTaxTopic = await db.query.topics.findFirst({
     where: eq(topics.slug, "income-tax-personal-allowance"),
   });
@@ -654,6 +686,13 @@ async function main() {
     difficultyLevel: "foundational",
   });
 
+  const ir35Chapter10Topic = await upsertTopic({
+    slug: "ir35-chapter10-fee-payer",
+    name: "IR35 / Off-Payroll: Chapter 10 fee-payer deduction",
+    taxArea: "ir35_ch10",
+    difficultyLevel: "advanced",
+  });
+
   const topicSourceLinks: (typeof topicSources.$inferInsert)[] = [
     ...(incomeTaxTopic
       ? [
@@ -699,6 +738,8 @@ async function main() {
     { topicId: class2Class3Topic.id, sourceId: sscbaS11a.id, relevance: "primary" },
     { topicId: class2Class3Topic.id, sourceId: sscbaS13.id, relevance: "primary" },
     { topicId: class2Class3Topic.id, sourceId: govukClass2Class3Rates.id, relevance: "primary" },
+    { topicId: ir35Chapter10Topic.id, sourceId: itepaS61n.id, relevance: "primary" },
+    { topicId: ir35Chapter10Topic.id, sourceId: govukOffPayrollChapter10.id, relevance: "primary" },
   ];
 
   for (const link of topicSourceLinks) {
@@ -989,6 +1030,20 @@ async function main() {
       smallProfitsThreshold: 7105,
       class2WeeklyRate: 3.65,
       class3WeeklyRate: 18.4,
+    },
+  });
+
+  await upsertRateTable({
+    taxArea: "ir35_ch10",
+    taxYear: "2026-27",
+    jurisdiction: "uk",
+    effectiveFrom: "2026-04-06",
+    effectiveTo: "2027-04-05",
+    sourceId: govukOffPayrollChapter10.id,
+    status: "published",
+    values: {
+      employerNicRate: 0.15,
+      employerNicSecondaryThreshold: 5000,
     },
   });
 

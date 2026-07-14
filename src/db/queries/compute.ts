@@ -16,7 +16,8 @@ export async function getPublishedRateTable(
     | "council_tax"
     | "business_rates"
     | "r_and_d_relief"
-    | "ir35",
+    | "ir35"
+    | "ir35_ch10",
   jurisdiction: "uk" | "scotland" | "wales",
 ) {
   const row = await db
