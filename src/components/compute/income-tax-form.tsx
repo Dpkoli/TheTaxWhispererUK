@@ -45,6 +45,7 @@ export function IncomeTaxForm({ isGuest }: { isGuest: boolean }) {
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [extraction, setExtraction] = useState<UploadResult | null>(null);
   const [wasEdited, setWasEdited] = useState(false);
+  const [benefitsAddedToIncome, setBenefitsAddedToIncome] = useState(false);
 
   async function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -58,9 +59,10 @@ export function IncomeTaxForm({ isGuest }: { isGuest: boolean }) {
       const res = await uploadIncomeTaxDocument(formData);
       setExtraction(res);
       setWasEdited(false);
+      setBenefitsAddedToIncome(false);
       if (res.totalPayForYear) {
         setIncome(String(res.totalPayForYear.value));
-      } else {
+      } else if (!res.totalBenefitsInKind) {
         setUploadError(
           "Couldn't find a total pay figure in that document — enter it manually below.",
         );
@@ -95,10 +97,11 @@ export function IncomeTaxForm({ isGuest }: { isGuest: boolean }) {
     <div className="space-y-6">
       <Card>
         <h2 className="text-sm font-semibold text-navy-950">
-          Upload a P60 or payslip (optional)
+          Upload a P60, payslip, or P11D (optional)
         </h2>
         <p className="mt-1 text-xs leading-relaxed text-ink/60">
-          PDF or Excel. We&apos;ll try to read a total pay figure and pre-fill
+          PDF or Excel. We&apos;ll try to read a total pay figure from a P60
+          or payslip, or a benefits-in-kind figure from a P11D, and pre-fill
           it below — you always review and can edit it before computing
           anything.
         </p>
@@ -115,24 +118,49 @@ export function IncomeTaxForm({ isGuest }: { isGuest: boolean }) {
         </div>
         {uploadError && <p className="mt-2 text-sm text-red-700">{uploadError}</p>}
 
-        {extraction && (extraction.totalPayForYear || extraction.totalTaxDeducted) && (
-          <div className="mt-3 rounded-md border border-accent/30 bg-accent/5 p-3 text-xs text-ink/70">
-            <p className="font-semibold text-navy-950">
-              {wasEdited ? "Auto-extracted, then edited by you" : "Auto-extracted — review before computing"}
-            </p>
-            {extraction.totalPayForYear && (
-              <p className="mt-1">
-                Total pay for year: {currency.format(extraction.totalPayForYear.value)} (
-                {extraction.totalPayForYear.confidence} confidence)
+        {extraction &&
+          (extraction.totalPayForYear ||
+            extraction.totalTaxDeducted ||
+            extraction.totalBenefitsInKind) && (
+            <div className="mt-3 rounded-md border border-accent/30 bg-accent/5 p-3 text-xs text-ink/70">
+              <p className="font-semibold text-navy-950">
+                {wasEdited ? "Auto-extracted, then edited by you" : "Auto-extracted — review before computing"}
               </p>
-            )}
-            {extraction.totalTaxDeducted && (
-              <p>
-                Total tax deducted (per document): {currency.format(extraction.totalTaxDeducted.value)}
-              </p>
-            )}
-          </div>
-        )}
+              {extraction.totalPayForYear && (
+                <p className="mt-1">
+                  Total pay for year: {currency.format(extraction.totalPayForYear.value)} (
+                  {extraction.totalPayForYear.confidence} confidence)
+                </p>
+              )}
+              {extraction.totalTaxDeducted && (
+                <p>
+                  Total tax deducted (per document): {currency.format(extraction.totalTaxDeducted.value)}
+                </p>
+              )}
+              {extraction.totalBenefitsInKind && (
+                <div className="mt-1 flex flex-wrap items-center gap-2">
+                  <p>
+                    Benefits in kind (P11D): {currency.format(extraction.totalBenefitsInKind.value)} (
+                    {extraction.totalBenefitsInKind.confidence} confidence)
+                  </p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="text-xs"
+                    disabled={benefitsAddedToIncome}
+                    onClick={() => {
+                      const current = Number(income) || 0;
+                      setIncome(String(current + extraction.totalBenefitsInKind!.value));
+                      setBenefitsAddedToIncome(true);
+                      setWasEdited(true);
+                    }}
+                  >
+                    {benefitsAddedToIncome ? "Added to income" : "Add to income"}
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
       </Card>
 
       <Card>
@@ -184,7 +212,7 @@ export function IncomeTaxForm({ isGuest }: { isGuest: boolean }) {
       </Card>
 
       {result && (
-        <Card>
+        <Card className="print-area">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 className="text-sm font-semibold uppercase tracking-wide text-ink/50">
               Computation breakdown
@@ -219,10 +247,15 @@ export function IncomeTaxForm({ isGuest }: { isGuest: boolean }) {
 
           <p className="mt-4 text-sm leading-relaxed text-ink/70">{result.narrative}</p>
 
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-4">
-            <Button variant="outline" onClick={() => downloadCsv(result)}>
-              Export as CSV
-            </Button>
+          <div className="no-print mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-4">
+            <div className="flex flex-wrap gap-2">
+              <Button variant="outline" onClick={() => downloadCsv(result)}>
+                Export as CSV
+              </Button>
+              <Button variant="outline" onClick={() => window.print()}>
+                Export as PDF
+              </Button>
+            </div>
             {!result.persisted && isGuest && (
               <p className="text-xs text-ink/50">
                 Sign in to save this computation to your account.

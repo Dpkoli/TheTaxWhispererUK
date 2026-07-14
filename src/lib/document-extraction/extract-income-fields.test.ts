@@ -26,6 +26,7 @@ describe("extractIncomeFieldsFromText", () => {
     mockCompletion({
       totalPayForYear: { value: 110000, confidence: "high", sourceLocation: "line 4" },
       totalTaxDeducted: { value: 33432, confidence: "high", sourceLocation: "line 5" },
+      totalBenefitsInKind: null,
     });
 
     const result = await extractIncomeFieldsFromText("Total pay for year: 110000.00");
@@ -34,11 +35,29 @@ describe("extractIncomeFieldsFromText", () => {
   });
 
   it("accepts null fields when nothing was found, rather than a fabricated guess", async () => {
-    mockCompletion({ totalPayForYear: null, totalTaxDeducted: null });
+    mockCompletion({ totalPayForYear: null, totalTaxDeducted: null, totalBenefitsInKind: null });
 
     const result = await extractIncomeFieldsFromText("This document has no relevant figures.");
     expect(result.totalPayForYear).toBeNull();
     expect(result.totalTaxDeducted).toBeNull();
+    expect(result.totalBenefitsInKind).toBeNull();
+  });
+
+  it("extracts a summed benefits-in-kind figure from a P11D", async () => {
+    mockCompletion({
+      totalPayForYear: null,
+      totalTaxDeducted: null,
+      totalBenefitsInKind: {
+        value: 6500,
+        confidence: "high",
+        sourceLocation: "P11D: company car 5000.00 + private medical 1500.00",
+      },
+    });
+
+    const result = await extractIncomeFieldsFromText(
+      "P11D: Company car cash equivalent 5000.00. Private medical insurance 1500.00.",
+    );
+    expect(result.totalBenefitsInKind?.value).toBe(6500);
   });
 
   it("throws (rather than silently accepting) a response missing required shape", async () => {

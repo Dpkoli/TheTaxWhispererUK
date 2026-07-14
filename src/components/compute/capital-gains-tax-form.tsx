@@ -113,7 +113,7 @@ export function CapitalGainsTaxForm({ isGuest }: { isGuest: boolean }) {
       </Card>
 
       {result && (
-        <Card>
+        <Card className="print-area">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 className="text-sm font-semibold uppercase tracking-wide text-ink/50">
               Computation breakdown
@@ -148,10 +148,15 @@ export function CapitalGainsTaxForm({ isGuest }: { isGuest: boolean }) {
 
           <p className="mt-4 text-sm leading-relaxed text-ink/70">{result.narrative}</p>
 
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-4">
-            <Button variant="outline" onClick={() => downloadCsv(result)}>
-              Export as CSV
-            </Button>
+          <div className="no-print mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-4">
+            <div className="flex flex-wrap gap-2">
+              <Button variant="outline" onClick={() => downloadCsv(result)}>
+                Export as CSV
+              </Button>
+              <Button variant="outline" onClick={() => window.print()}>
+                Export as PDF
+              </Button>
+            </div>
             {!result.persisted && isGuest && (
               <p className="text-xs text-ink/50">
                 Sign in to save this computation to your account.

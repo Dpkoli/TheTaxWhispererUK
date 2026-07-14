@@ -9,6 +9,7 @@ export type UploadResult = {
   extractionId: string;
   totalPayForYear: { value: number; confidence: string; sourceLocation: string } | null;
   totalTaxDeducted: { value: number; confidence: string; sourceLocation: string } | null;
+  totalBenefitsInKind: { value: number; confidence: string; sourceLocation: string } | null;
 };
 
 export async function uploadIncomeTaxDocument(formData: FormData): Promise<UploadResult> {
@@ -53,5 +54,6 @@ export async function uploadIncomeTaxDocument(formData: FormData): Promise<Uploa
     extractionId: extraction.id,
     totalPayForYear: extracted.totalPayForYear,
     totalTaxDeducted: extracted.totalTaxDeducted,
+    totalBenefitsInKind: extracted.totalBenefitsInKind,
   };
 }

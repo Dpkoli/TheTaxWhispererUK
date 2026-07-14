@@ -49,3 +49,28 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
 }
+
+/*
+ * Print-to-PDF workpaper export for Tax Computation results. A page opts in
+ * by wrapping its result with .print-area — everything else on the page is
+ * hidden for print, and .no-print elements (action buttons, disclaimers
+ * about signing in) are dropped even inside the print area.
+ */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .print-area,
+  .print-area * {
+    visibility: visible;
+  }
+  .print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+  .no-print {
+    display: none !important;
+  }
+}
