@@ -4,35 +4,26 @@ import { auth } from "@/lib/auth";
 import { db } from "@/db";
 import { computationLineItems, taxComputations } from "@/db/schema";
 import { getPublishedRateTable } from "@/db/queries/compute";
-import { computeSdlt, type SdltRateTableValues } from "@/lib/tax-engine/stamp-duty-land-tax";
-import { narrateSdltResult } from "@/lib/tax-engine/narrative";
+import {
+  computeCorporationTax,
+  type CorporationTaxRateTableValues,
+} from "@/lib/tax-engine/corporation-tax";
+import { narrateCorporationTaxResult } from "@/lib/tax-engine/narrative";
 
-const TAX_NAME_BY_JURISDICTION: Record<"uk" | "scotland" | "wales", string> = {
-  uk: "Stamp Duty Land Tax",
-  scotland: "Land and Buildings Transaction Tax",
-  wales: "Land Transaction Tax",
-};
-
-export async function runSdltComputation(
-  purchasePrice: number,
-  isFirstTimeBuyer: boolean,
-  jurisdiction: "uk" | "scotland" | "wales" = "uk",
-) {
-  if (!Number.isFinite(purchasePrice) || purchasePrice < 0) {
-    throw new Error("Enter a valid, non-negative purchase price");
+export async function runCorporationTaxComputation(profits: number) {
+  if (!Number.isFinite(profits) || profits < 0) {
+    throw new Error("Enter a valid, non-negative profits figure");
   }
 
-  const rateTableRow = await getPublishedRateTable("sdlt", jurisdiction);
+  const rateTableRow = await getPublishedRateTable("corporation_tax", "uk");
   if (!rateTableRow) {
-    throw new Error(
-      `No published ${TAX_NAME_BY_JURISDICTION[jurisdiction]} rate table is available`,
-    );
+    throw new Error("No published Corporation Tax rate table is available");
   }
 
   const { rateTable, source } = rateTableRow;
-  const values = rateTable.values as SdltRateTableValues;
-  const result = computeSdlt(purchasePrice, isFirstTimeBuyer, values);
-  const narrative = narrateSdltResult(result, TAX_NAME_BY_JURISDICTION[jurisdiction]);
+  const values = rateTable.values as CorporationTaxRateTableValues;
+  const result = computeCorporationTax(profits, values);
+  const narrative = narrateCorporationTaxResult(result, rateTable.taxYear);
 
   const session = await auth();
   let computationId: string | null = null;
@@ -42,9 +33,9 @@ export async function runSdltComputation(
       .insert(taxComputations)
       .values({
         userId: session.user.id,
-        taxArea: "sdlt",
+        taxArea: "corporation_tax",
         rateTableId: rateTable.id,
-        inputSnapshot: { purchasePrice, isFirstTimeBuyer, jurisdiction },
+        inputSnapshot: { profits },
         outputBreakdown: result,
         narrativeExplanation: narrative,
         status: "confirmed",

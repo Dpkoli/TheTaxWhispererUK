@@ -18,6 +18,20 @@ export type NationalInsuranceResult = {
   effectiveRate: number;
 };
 
+export type NationalInsuranceLabels = {
+  earningsLabel: string;
+  thresholdName: string;
+  upperLimitName: string;
+  totalLabel: string;
+};
+
+const CLASS_1_LABELS: NationalInsuranceLabels = {
+  earningsLabel: "Annual earnings (this employment)",
+  thresholdName: "Primary Threshold",
+  upperLimitName: "Upper Earnings Limit",
+  totalLabel: "Total Class 1 (employee) NI due",
+};
+
 /**
  * Deterministic Class 1 employee (primary) National Insurance computation
  * for a single employment, per SSCBA 1992 s.6. Treats the input as annual
@@ -25,17 +39,23 @@ export type NationalInsuranceResult = {
  * multiple concurrent jobs, which SSCBA 1992 s.6(1) says are calculated
  * separately unless the earner is a "director" or aggregation regulations
  * apply.
+ *
+ * The band mechanism (threshold, main rate, additional rate above an
+ * upper limit) is shared with Class 4 self-employed NI (SSCBA 1992 s.15)
+ * — pass `labels` to reuse this engine with Class 4's own terminology
+ * instead of duplicating the arithmetic.
  */
 export function computeClass1Nic(
   annualEarnings: number,
   rates: NationalInsuranceRateTableValues,
+  labels: NationalInsuranceLabels = CLASS_1_LABELS,
 ): NationalInsuranceResult {
   if (annualEarnings < 0) {
     throw new Error("annualEarnings cannot be negative");
   }
 
   const lineItems: NationalInsuranceLineItem[] = [
-    { label: "Annual earnings (this employment)", amount: round2(annualEarnings) },
+    { label: labels.earningsLabel, amount: round2(annualEarnings) },
   ];
 
   const mainBandEarnings = Math.max(
@@ -45,7 +65,7 @@ export function computeClass1Nic(
   const mainContribution = round2(mainBandEarnings * rates.mainRate);
   if (mainBandEarnings > 0) {
     lineItems.push({
-      label: `Primary Threshold to Upper Earnings Limit @ ${(rates.mainRate * 100).toFixed(0)}%`,
+      label: `${labels.thresholdName} to ${labels.upperLimitName} @ ${(rates.mainRate * 100).toFixed(0)}%`,
       amount: mainContribution,
       rate: rates.mainRate,
     });
@@ -55,14 +75,14 @@ export function computeClass1Nic(
   const additionalContribution = round2(additionalBandEarnings * rates.additionalRate);
   if (additionalBandEarnings > 0) {
     lineItems.push({
-      label: `Above Upper Earnings Limit @ ${(rates.additionalRate * 100).toFixed(0)}%`,
+      label: `Above ${labels.upperLimitName} @ ${(rates.additionalRate * 100).toFixed(0)}%`,
       amount: additionalContribution,
       rate: rates.additionalRate,
     });
   }
 
   const totalContributions = round2(mainContribution + additionalContribution);
-  lineItems.push({ label: "Total Class 1 (employee) NI due", amount: totalContributions });
+  lineItems.push({ label: labels.totalLabel, amount: totalContributions });
 
   return {
     annualEarnings: round2(annualEarnings),

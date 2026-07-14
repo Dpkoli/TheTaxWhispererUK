@@ -4,9 +4,9 @@ import { useState, useTransition } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CitationChip } from "@/components/ui/citation-chip";
-import { runSdltComputation } from "@/app/compute/stamp-duty-land-tax/actions";
+import { runVatComputation } from "@/app/compute/vat/actions";
 
-type ComputationResult = Awaited<ReturnType<typeof runSdltComputation>>;
+type ComputationResult = Awaited<ReturnType<typeof runVatComputation>>;
 
 const currency = new Intl.NumberFormat("en-GB", {
   style: "currency",
@@ -27,30 +27,31 @@ function downloadCsv(result: ComputationResult) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `property-transaction-tax-computation-${result.rateTableVersion.taxYear}.csv`;
+  a.download = `vat-computation-${result.rateTableVersion.taxYear}.csv`;
   a.click();
   URL.revokeObjectURL(url);
 }
 
-export function StampDutyLandTaxForm({ isGuest }: { isGuest: boolean }) {
-  const [purchasePrice, setPurchasePrice] = useState("");
-  const [isFirstTimeBuyer, setIsFirstTimeBuyer] = useState(false);
-  const [jurisdiction, setJurisdiction] = useState<"uk" | "scotland" | "wales">("uk");
+export function VatForm({ isGuest }: { isGuest: boolean }) {
+  const [standardSales, setStandardSales] = useState("");
+  const [reducedSales, setReducedSales] = useState("0");
+  const [zeroSales, setZeroSales] = useState("0");
+  const [inputVat, setInputVat] = useState("0");
   const [result, setResult] = useState<ComputationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
-    const parsed = Number(purchasePrice);
-    if (!Number.isFinite(parsed) || parsed < 0) {
-      setError("Enter a valid, non-negative purchase price.");
+    const values = [standardSales, reducedSales, zeroSales, inputVat].map((v) => Number(v || 0));
+    if (values.some((v) => !Number.isFinite(v) || v < 0)) {
+      setError("Enter valid, non-negative figures for every field.");
       return;
     }
     setError(null);
     startTransition(async () => {
       try {
-        const res = await runSdltComputation(parsed, isFirstTimeBuyer, jurisdiction);
+        const res = await runVatComputation(values[0], values[1], values[2], values[3]);
         setResult(res);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Something went wrong.");
@@ -61,59 +62,75 @@ export function StampDutyLandTaxForm({ isGuest }: { isGuest: boolean }) {
   return (
     <div className="space-y-6">
       <Card>
-        <form onSubmit={handleSubmit} className="flex flex-wrap items-end gap-4">
-          <div className="flex-1 min-w-[220px]">
-            <label htmlFor="purchase-price" className="text-sm font-medium text-ink/80">
-              Purchase price
+        <form onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label htmlFor="standard-sales" className="text-sm font-medium text-ink/80">
+              Standard-rated sales (net of VAT)
             </label>
             <input
-              id="purchase-price"
+              id="standard-sales"
               type="number"
               min={0}
               step="0.01"
-              value={purchasePrice}
-              onChange={(event) => setPurchasePrice(event.target.value)}
-              placeholder="e.g. 400000"
+              value={standardSales}
+              onChange={(event) => setStandardSales(event.target.value)}
+              placeholder="e.g. 50000"
               className="mt-1.5 w-full rounded-md border border-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
             />
           </div>
           <div>
-            <label htmlFor="jurisdiction" className="text-sm font-medium text-ink/80">
-              Jurisdiction
+            <label htmlFor="reduced-sales" className="text-sm font-medium text-ink/80">
+              Reduced-rated sales (net of VAT)
             </label>
-            <select
-              id="jurisdiction"
-              value={jurisdiction}
-              onChange={(event) =>
-                setJurisdiction(event.target.value as "uk" | "scotland" | "wales")
-              }
-              className="mt-1.5 rounded-md border border-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-            >
-              <option value="uk">England / Northern Ireland (SDLT)</option>
-              <option value="scotland">Scotland (LBTT)</option>
-              <option value="wales">Wales (LTT)</option>
-            </select>
-          </div>
-          <label className="flex items-center gap-2 text-sm text-ink/80">
             <input
-              type="checkbox"
-              checked={isFirstTimeBuyer}
-              onChange={(event) => setIsFirstTimeBuyer(event.target.checked)}
-              className="rounded border-line"
+              id="reduced-sales"
+              type="number"
+              min={0}
+              step="0.01"
+              value={reducedSales}
+              onChange={(event) => setReducedSales(event.target.value)}
+              className="mt-1.5 w-full rounded-md border border-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
             />
-            First-time buyer
-          </label>
-          <Button type="submit" variant="primary" disabled={isPending || !purchasePrice}>
-            {isPending ? "Computing…" : "Compute"}
-          </Button>
+          </div>
+          <div>
+            <label htmlFor="zero-sales" className="text-sm font-medium text-ink/80">
+              Zero-rated sales
+            </label>
+            <input
+              id="zero-sales"
+              type="number"
+              min={0}
+              step="0.01"
+              value={zeroSales}
+              onChange={(event) => setZeroSales(event.target.value)}
+              className="mt-1.5 w-full rounded-md border border-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+            />
+          </div>
+          <div>
+            <label htmlFor="input-vat" className="text-sm font-medium text-ink/80">
+              Input VAT to reclaim (on purchases/expenses)
+            </label>
+            <input
+              id="input-vat"
+              type="number"
+              min={0}
+              step="0.01"
+              value={inputVat}
+              onChange={(event) => setInputVat(event.target.value)}
+              className="mt-1.5 w-full rounded-md border border-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <Button type="submit" variant="primary" disabled={isPending || !standardSales}>
+              {isPending ? "Computing…" : "Compute"}
+            </Button>
+          </div>
         </form>
         {error && <p className="mt-3 text-sm text-red-700">{error}</p>}
         <p className="mt-3 text-xs leading-relaxed text-ink/50">
-          Covers standard residential rates for one main dwelling only — it
-          doesn&apos;t yet cover the additional-property surcharge (SDLT),
-          the Additional Dwelling Supplement (LBTT), or the higher
-          residential rates (LTT). Wales does not offer first-time buyer
-          relief for LTT, so that checkbox has no effect there.
+          Assumes input VAT is fully recoverable — it doesn&apos;t yet
+          model partial exemption, the flat rate scheme, or the VAT
+          registration threshold itself.
         </p>
       </Card>
 
@@ -135,7 +152,7 @@ export function StampDutyLandTaxForm({ isGuest }: { isGuest: boolean }) {
           <table className="mt-4 w-full text-sm">
             <tbody>
               {result.result.lineItems.map((item, index) => {
-                const isTotal = item.label.startsWith("Total");
+                const isTotal = item.label.startsWith("Net VAT");
                 return (
                   <tr
                     key={index}

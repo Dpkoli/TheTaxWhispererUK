@@ -2,12 +2,12 @@ import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Container } from "@/components/ui/container";
-import { StampDutyLandTaxForm } from "@/components/compute/stamp-duty-land-tax-form";
+import { NationalInsuranceClass4Form } from "@/components/compute/national-insurance-class4-form";
 import { auth } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
-export default async function StampDutyLandTaxComputePage() {
+export default async function NationalInsuranceClass4ComputePage() {
   const session = await auth();
 
   return (
@@ -20,22 +20,19 @@ export default async function StampDutyLandTaxComputePage() {
           </Link>
 
           <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-accent-dark">
-            Property Transaction Tax
+            National Insurance
           </p>
           <h1 className="mt-2 text-2xl font-semibold text-navy-950 sm:text-3xl">
-            SDLT / LBTT / LTT computation
+            Class 4 (self-employed) National Insurance computation
           </h1>
           <p className="mt-3 max-w-2xl text-ink/70">
-            Enter a residential purchase price and jurisdiction to get a
-            full line-by-line breakdown for Stamp Duty Land Tax (England/
-            NI), Land and Buildings Transaction Tax (Scotland), or Land
-            Transaction Tax (Wales) — computed by deterministic code
-            against a versioned GOV.UK/Revenue Scotland/Welsh Government
-            rate table, never by AI arithmetic.
+            Enter annual taxable profits from self-employment to get a full
+            line-by-line breakdown, computed by deterministic code against
+            a versioned GOV.UK-sourced rate table — never by AI arithmetic.
           </p>
 
           <div className="mt-8 max-w-2xl">
-            <StampDutyLandTaxForm isGuest={!session?.user} />
+            <NationalInsuranceClass4Form isGuest={!session?.user} />
           </div>
         </Container>
       </main>

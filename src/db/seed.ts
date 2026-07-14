@@ -220,6 +220,173 @@ async function main() {
     lastVerifiedAt: now,
   });
 
+  const vataS2 = await upsertSource({
+    slug: "vata-1994-s2",
+    sourceType: "act",
+    title: "Value Added Tax Act 1994, s.2 — Rate of VAT",
+    citationCode: "VATA 1994 s.2",
+    officialUrl: "https://www.legislation.gov.uk/ukpga/1994/23/section/2",
+    jurisdiction: "uk",
+    effectiveFrom: "1994-01-01",
+    summaryPlainEnglish:
+      "Sets the standard rate of VAT at 20%, chargeable on the value of a taxable supply of goods or services. The Treasury may vary this rate by order within statutory limits.",
+    fullTextExtract:
+      "VAT shall be charged at the rate of 20 per cent and shall be charged on the supply of goods or services, by reference to the value of the supply as determined under this Act.",
+    status: "in_force",
+    lastVerifiedAt: now,
+  });
+
+  const govukVatRates = await upsertSource({
+    slug: "govuk-vat-rates",
+    sourceType: "govuk_guidance",
+    title: "VAT rates on different goods and services",
+    citationCode: "GOV.UK, VAT rates",
+    officialUrl: "https://www.gov.uk/vat-rates",
+    jurisdiction: "uk",
+    effectiveFrom: "2011-01-04",
+    summaryPlainEnglish:
+      "The three current UK VAT rates: standard rate 20% (most goods and services), reduced rate 5% (a narrow list including domestic fuel and power), and zero rate 0% (e.g. most food, children's clothing, books).",
+    fullTextExtract:
+      "Standard rate: 20%, most goods and services. Reduced rate: 5%, some goods and services (e.g. home energy, children's car seats). Zero rate: 0%, zero-rated goods and services (e.g. most food, books, children's clothes).",
+    status: "in_force",
+    lastVerifiedAt: now,
+  });
+
+  const ctaS3 = await upsertSource({
+    slug: "cta-2010-s3",
+    sourceType: "act",
+    title: "Corporation Tax Act 2010, s.3 — The rate of corporation tax",
+    citationCode: "CTA 2010 s.3",
+    officialUrl: "https://www.legislation.gov.uk/ukpga/2010/4/section/3",
+    jurisdiction: "uk",
+    effectiveFrom: "2010-04-01",
+    summaryPlainEnglish:
+      "Corporation tax is charged at the main rate set annually by Parliament, unless section 18 applies the lower small profits rate instead for qualifying companies.",
+    fullTextExtract:
+      'Corporation tax is charged at the rate set by Parliament for the financial year ("the main rate"). Section 18 provides for tax to be charged at the small profits rate instead of the main rate in certain cases.',
+    status: "in_force",
+    lastVerifiedAt: now,
+  });
+
+  const govukCorporationTaxRates = await upsertSource({
+    slug: "govuk-corporation-tax-rates-2026-27",
+    sourceType: "govuk_guidance",
+    title: "Corporation Tax rates and allowances",
+    citationCode: "GOV.UK, Corporation Tax rates and allowances (2026-27)",
+    officialUrl:
+      "https://www.gov.uk/government/publications/rates-and-allowances-corporation-tax/rates-and-allowances-corporation-tax",
+    jurisdiction: "uk",
+    effectiveFrom: "2026-04-01",
+    effectiveTo: "2027-03-31",
+    summaryPlainEnglish:
+      "For 2026/27: small profits rate 19% for profits up to £50,000, main rate 25% for profits above £250,000, and marginal relief tapering the rate between the two using the standard fraction 3/200.",
+    fullTextExtract:
+      "Small profits rate: 19% (profits up to £50,000). Main rate: 25% (profits over £250,000). Marginal relief fraction: 3/200, applied between £50,000 and £250,000.",
+    status: "in_force",
+    lastVerifiedAt: now,
+  });
+
+  const sscbaS15 = await upsertSource({
+    slug: "sscba-1992-s15",
+    sourceType: "act",
+    title:
+      "Social Security Contributions and Benefits Act 1992, s.15 — Class 4 contributions recoverable under the Income Tax Acts",
+    citationCode: "SSCBA 1992 s.15",
+    officialUrl: "https://www.legislation.gov.uk/ukpga/1992/4/section/15",
+    jurisdiction: "uk",
+    effectiveFrom: "1992-07-13",
+    summaryPlainEnglish:
+      "Charges Class 4 National Insurance contributions on the profits or gains of a trade, profession, or vocation carried on by a self-employed individual, collected alongside Income Tax.",
+    fullTextExtract:
+      "Class 4 contributions are payable under this section in respect of the profits or gains of a trade, profession or vocation... Class 4 contributions are levied and recovered as if they were an amount of income tax.",
+    status: "in_force",
+    lastVerifiedAt: now,
+  });
+
+  const govukClass4NicRates = await upsertSource({
+    slug: "govuk-class4-nic-rates-2026-27",
+    sourceType: "govuk_guidance",
+    title: "Self-employed National Insurance rates",
+    citationCode: "GOV.UK, Self-employed National Insurance rates (2026-27)",
+    officialUrl: "https://www.gov.uk/self-employed-national-insurance-rates",
+    jurisdiction: "uk",
+    effectiveFrom: "2026-04-06",
+    effectiveTo: "2027-04-05",
+    summaryPlainEnglish:
+      "For 2026/27, Class 4 self-employed National Insurance is charged at 6% on annual profits between the Lower Profits Limit (£12,570) and the Upper Profits Limit (£50,270), and 2% above the Upper Profits Limit.",
+    fullTextExtract:
+      "Class 4 National Insurance: 0% up to £12,570; 6% on profits between £12,570 and £50,270; 2% on profits above £50,270.",
+    status: "in_force",
+    lastVerifiedAt: now,
+  });
+
+  const lbttS25 = await upsertSource({
+    slug: "lbtt-scotland-2013-s25",
+    sourceType: "act",
+    title: "Land and Buildings Transaction Tax (Scotland) Act 2013, s.25 — Amount of tax chargeable",
+    citationCode: "LBTT(S)A 2013 s.25",
+    officialUrl: "https://www.legislation.gov.uk/asp/2013/11/section/25",
+    jurisdiction: "scotland",
+    effectiveFrom: "2015-04-01",
+    summaryPlainEnglish:
+      "Sets how LBTT is calculated: for each tax band applicable, the portion of the price within that band is multiplied by the band's rate, and the amounts summed — the same slice mechanism as SDLT, administered separately by Revenue Scotland.",
+    fullTextExtract:
+      "The amount of tax chargeable in respect of a chargeable transaction is to be determined by, for each tax band, multiplying so much of the chargeable consideration as falls within the band by the tax rate for that band, and summing the results.",
+    status: "in_force",
+    lastVerifiedAt: now,
+  });
+
+  const revenueScotlandLbttRates = await upsertSource({
+    slug: "revenue-scotland-lbtt-rates-2026-27",
+    sourceType: "govuk_guidance",
+    title: "LBTT residential rates and bands",
+    citationCode: "Revenue Scotland, LBTT residential rates (2026-27)",
+    officialUrl: "https://revenue.scot/taxes/land-buildings-transaction-tax/residential-property",
+    jurisdiction: "scotland",
+    effectiveFrom: "2026-04-06",
+    effectiveTo: "2027-04-05",
+    summaryPlainEnglish:
+      "For 2026/27, LBTT residential rates remain: 0% up to £145,000, 2% to £250,000, 5% to £325,000, 10% to £750,000, 12% above. First-time buyer relief raises the nil-rate ceiling to £175,000.",
+    fullTextExtract:
+      "LBTT residential rates: 0% up to £145,000; 2% from £145,001 to £250,000; 5% from £250,001 to £325,000; 10% from £325,001 to £750,000; 12% above £750,000. First-time buyer relief: nil rate band extended to £175,000.",
+    status: "in_force",
+    lastVerifiedAt: now,
+  });
+
+  const lttS24 = await upsertSource({
+    slug: "ltt-wales-2017-s24",
+    sourceType: "act",
+    title:
+      "Land Transaction Tax and Anti-avoidance of Devolved Taxes (Wales) Act 2017, s.24 — Amount of tax chargeable",
+    citationCode: "LTTADTWA 2017 s.24",
+    officialUrl: "https://www.legislation.gov.uk/anaw/2017/1/section/24",
+    jurisdiction: "wales",
+    effectiveFrom: "2018-04-01",
+    summaryPlainEnglish:
+      "Sets how LTT is calculated using the same slice-band mechanism as SDLT and LBTT: the portion of the price within each tax band is multiplied by that band's rate. The actual bands and rates are set by regulations under this section, not fixed in the Act itself.",
+    fullTextExtract:
+      "The liability is established by multiplying so much of the chargeable consideration that falls within each tax band by the percentage rate applicable to that band, and summing the amounts, to give the amount of tax chargeable.",
+    status: "in_force",
+    lastVerifiedAt: now,
+  });
+
+  const govukWalesLttRates = await upsertSource({
+    slug: "govuk-wales-ltt-rates-2026-27",
+    sourceType: "govuk_guidance",
+    title: "Land Transaction Tax rates and bands",
+    citationCode: "GOV.WALES, Land Transaction Tax rates and bands (2026-27)",
+    officialUrl: "https://www.gov.wales/land-transaction-tax-rates-and-bands",
+    jurisdiction: "wales",
+    effectiveFrom: "2026-04-01",
+    effectiveTo: "2027-03-31",
+    summaryPlainEnglish:
+      "For 2026/27, LTT main residential rates are unchanged: 0% up to £225,000, 6% to £400,000, 7.5% to £750,000, 10% to £1,500,000, 12% above. Wales does not offer a first-time buyer relief for LTT.",
+    fullTextExtract:
+      "LTT residential rates: 0% up to £225,000; 6% from £225,001 to £400,000; 7.5% from £400,001 to £750,000; 10% from £750,001 to £1,500,000; 12% above £1,500,000. No first-time buyer relief is available.",
+    status: "in_force",
+    lastVerifiedAt: now,
+  });
+
   const incomeTaxTopic = await db.query.topics.findFirst({
     where: eq(topics.slug, "income-tax-personal-allowance"),
   });
@@ -252,6 +419,27 @@ async function main() {
     difficultyLevel: "foundational",
   });
 
+  const corporationTaxTopic = await upsertTopic({
+    slug: "corporation-tax-rates",
+    name: "Corporation Tax: rates and marginal relief",
+    taxArea: "corporation_tax",
+    difficultyLevel: "intermediate",
+  });
+
+  const vatTopic = await upsertTopic({
+    slug: "vat-rates",
+    name: "VAT: rates and output/input tax",
+    taxArea: "vat",
+    difficultyLevel: "foundational",
+  });
+
+  const nicClass4Topic = await upsertTopic({
+    slug: "national-insurance-class-4",
+    name: "National Insurance: Class 4 (self-employed)",
+    taxArea: "nic_class4",
+    difficultyLevel: "foundational",
+  });
+
   const topicSourceLinks: (typeof topicSources.$inferInsert)[] = [
     ...(incomeTaxTopic
       ? [
@@ -272,6 +460,16 @@ async function main() {
     { topicId: ihtTopic.id, sourceId: govukIhtThresholds.id, relevance: "primary" },
     { topicId: sdltTopic.id, sourceId: fa2003S55.id, relevance: "primary" },
     { topicId: sdltTopic.id, sourceId: govukSdltRates.id, relevance: "primary" },
+    { topicId: sdltTopic.id, sourceId: lbttS25.id, relevance: "primary" },
+    { topicId: sdltTopic.id, sourceId: revenueScotlandLbttRates.id, relevance: "primary" },
+    { topicId: sdltTopic.id, sourceId: lttS24.id, relevance: "primary" },
+    { topicId: sdltTopic.id, sourceId: govukWalesLttRates.id, relevance: "primary" },
+    { topicId: corporationTaxTopic.id, sourceId: ctaS3.id, relevance: "primary" },
+    { topicId: corporationTaxTopic.id, sourceId: govukCorporationTaxRates.id, relevance: "primary" },
+    { topicId: vatTopic.id, sourceId: vataS2.id, relevance: "primary" },
+    { topicId: vatTopic.id, sourceId: govukVatRates.id, relevance: "primary" },
+    { topicId: nicClass4Topic.id, sourceId: sscbaS15.id, relevance: "primary" },
+    { topicId: nicClass4Topic.id, sourceId: govukClass4NicRates.id, relevance: "primary" },
   ];
 
   for (const link of topicSourceLinks) {
@@ -375,6 +573,108 @@ async function main() {
         { label: "£300,001 to £500,000", upTo: 500000, rate: 0.05 },
       ],
       firstTimeBuyerReliefCeiling: 500000,
+    },
+  });
+
+  await upsertRateTable({
+    taxArea: "corporation_tax",
+    taxYear: "2026-27",
+    jurisdiction: "uk",
+    effectiveFrom: "2026-04-01",
+    effectiveTo: "2027-03-31",
+    sourceId: govukCorporationTaxRates.id,
+    status: "published",
+    values: {
+      smallProfitsRate: 0.19,
+      smallProfitsLimit: 50000,
+      mainRate: 0.25,
+      mainRateThreshold: 250000,
+      marginalReliefFraction: 3 / 200,
+    },
+  });
+
+  await upsertRateTable({
+    taxArea: "vat",
+    taxYear: "2026-27",
+    jurisdiction: "uk",
+    effectiveFrom: "2026-04-06",
+    effectiveTo: "2027-04-05",
+    sourceId: govukVatRates.id,
+    status: "published",
+    values: {
+      standardRate: 0.2,
+      reducedRate: 0.05,
+      zeroRate: 0,
+    },
+  });
+
+  await upsertRateTable({
+    taxArea: "nic_class4",
+    taxYear: "2026-27",
+    jurisdiction: "uk",
+    effectiveFrom: "2026-04-06",
+    effectiveTo: "2027-04-05",
+    sourceId: govukClass4NicRates.id,
+    status: "published",
+    values: {
+      primaryThreshold: 12570,
+      upperEarningsLimit: 50270,
+      mainRate: 0.06,
+      additionalRate: 0.02,
+    },
+  });
+
+  await upsertRateTable({
+    taxArea: "sdlt",
+    taxYear: "2026-27",
+    jurisdiction: "scotland",
+    effectiveFrom: "2026-04-06",
+    effectiveTo: "2027-04-05",
+    sourceId: revenueScotlandLbttRates.id,
+    status: "published",
+    values: {
+      standardBands: [
+        { label: "Up to £145,000", upTo: 145000, rate: 0 },
+        { label: "£145,001 to £250,000", upTo: 250000, rate: 0.02 },
+        { label: "£250,001 to £325,000", upTo: 325000, rate: 0.05 },
+        { label: "£325,001 to £750,000", upTo: 750000, rate: 0.1 },
+        { label: "Above £750,000", upTo: null, rate: 0.12 },
+      ],
+      firstTimeBuyerBands: [
+        { label: "Up to £175,000", upTo: 175000, rate: 0 },
+        { label: "£175,001 to £250,000", upTo: 250000, rate: 0.02 },
+        { label: "£250,001 to £325,000", upTo: 325000, rate: 0.05 },
+        { label: "£325,001 to £750,000", upTo: 750000, rate: 0.1 },
+        { label: "Above £750,000", upTo: null, rate: 0.12 },
+      ],
+      firstTimeBuyerReliefCeiling: 100000000,
+    },
+  });
+
+  await upsertRateTable({
+    taxArea: "sdlt",
+    taxYear: "2026-27",
+    jurisdiction: "wales",
+    effectiveFrom: "2026-04-01",
+    effectiveTo: "2027-03-31",
+    sourceId: govukWalesLttRates.id,
+    status: "published",
+    values: {
+      standardBands: [
+        { label: "Up to £225,000", upTo: 225000, rate: 0 },
+        { label: "£225,001 to £400,000", upTo: 400000, rate: 0.06 },
+        { label: "£400,001 to £750,000", upTo: 750000, rate: 0.075 },
+        { label: "£750,001 to £1,500,000", upTo: 1500000, rate: 0.1 },
+        { label: "Above £1,500,000", upTo: null, rate: 0.12 },
+      ],
+      firstTimeBuyerBands: [
+        { label: "Up to £225,000", upTo: 225000, rate: 0 },
+        { label: "£225,001 to £400,000", upTo: 400000, rate: 0.06 },
+        { label: "£400,001 to £750,000", upTo: 750000, rate: 0.075 },
+        { label: "£750,001 to £1,500,000", upTo: 1500000, rate: 0.1 },
+        { label: "Above £1,500,000", upTo: null, rate: 0.12 },
+      ],
+      firstTimeBuyerReliefCeiling: 0,
     },
   });
 

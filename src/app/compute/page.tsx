@@ -28,16 +28,35 @@ const CALCULATORS = [
   },
   {
     href: "/compute/national-insurance",
-    title: "National Insurance",
+    title: "National Insurance (Class 1)",
     status: "Available",
-    description: "Class 1 (employee) contributions for a single employment. Class 2 and 4 (self-employed) are coming soon.",
+    description: "Employee contributions for a single employment.",
+  },
+  {
+    href: "/compute/national-insurance-class4",
+    title: "National Insurance (Class 4)",
+    status: "Available",
+    description: "Self-employed contributions on annual taxable profits. Class 2 is coming soon.",
   },
   {
     href: "/compute/stamp-duty-land-tax",
-    title: "Stamp Duty Land Tax",
+    title: "SDLT / LBTT / LTT",
     status: "Available",
     description:
-      "Standard residential rates and first-time buyer relief for England/NI. LTT (Wales) and LBTT (Scotland) are coming soon.",
+      "Residential property transaction tax with a jurisdiction selector — Stamp Duty Land Tax (England/NI), Land and Buildings Transaction Tax (Scotland), or Land Transaction Tax (Wales).",
+  },
+  {
+    href: "/compute/corporation-tax",
+    title: "Corporation Tax",
+    status: "Available",
+    description:
+      "Main rate, small profits rate, and marginal relief for a single company with no associated companies.",
+  },
+  {
+    href: "/compute/vat",
+    title: "VAT",
+    status: "Available",
+    description: "Output VAT by rate minus reclaimable input VAT for one return period.",
   },
 ];
 

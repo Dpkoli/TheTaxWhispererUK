@@ -4,9 +4,9 @@ import { useState, useTransition } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CitationChip } from "@/components/ui/citation-chip";
-import { runSdltComputation } from "@/app/compute/stamp-duty-land-tax/actions";
+import { runClass4NicComputation } from "@/app/compute/national-insurance-class4/actions";
 
-type ComputationResult = Awaited<ReturnType<typeof runSdltComputation>>;
+type ComputationResult = Awaited<ReturnType<typeof runClass4NicComputation>>;
 
 const currency = new Intl.NumberFormat("en-GB", {
   style: "currency",
@@ -27,30 +27,28 @@ function downloadCsv(result: ComputationResult) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `property-transaction-tax-computation-${result.rateTableVersion.taxYear}.csv`;
+  a.download = `nic-class4-computation-${result.rateTableVersion.taxYear}.csv`;
   a.click();
   URL.revokeObjectURL(url);
 }
 
-export function StampDutyLandTaxForm({ isGuest }: { isGuest: boolean }) {
-  const [purchasePrice, setPurchasePrice] = useState("");
-  const [isFirstTimeBuyer, setIsFirstTimeBuyer] = useState(false);
-  const [jurisdiction, setJurisdiction] = useState<"uk" | "scotland" | "wales">("uk");
+export function NationalInsuranceClass4Form({ isGuest }: { isGuest: boolean }) {
+  const [profits, setProfits] = useState("");
   const [result, setResult] = useState<ComputationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
-    const parsed = Number(purchasePrice);
+    const parsed = Number(profits);
     if (!Number.isFinite(parsed) || parsed < 0) {
-      setError("Enter a valid, non-negative purchase price.");
+      setError("Enter a valid, non-negative profits figure.");
       return;
     }
     setError(null);
     startTransition(async () => {
       try {
-        const res = await runSdltComputation(parsed, isFirstTimeBuyer, jurisdiction);
+        const res = await runClass4NicComputation(parsed);
         setResult(res);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Something went wrong.");
@@ -63,57 +61,29 @@ export function StampDutyLandTaxForm({ isGuest }: { isGuest: boolean }) {
       <Card>
         <form onSubmit={handleSubmit} className="flex flex-wrap items-end gap-4">
           <div className="flex-1 min-w-[220px]">
-            <label htmlFor="purchase-price" className="text-sm font-medium text-ink/80">
-              Purchase price
+            <label htmlFor="profits" className="text-sm font-medium text-ink/80">
+              Annual taxable profits from self-employment
             </label>
             <input
-              id="purchase-price"
+              id="profits"
               type="number"
               min={0}
               step="0.01"
-              value={purchasePrice}
-              onChange={(event) => setPurchasePrice(event.target.value)}
-              placeholder="e.g. 400000"
+              value={profits}
+              onChange={(event) => setProfits(event.target.value)}
+              placeholder="e.g. 35000"
               className="mt-1.5 w-full rounded-md border border-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
             />
           </div>
-          <div>
-            <label htmlFor="jurisdiction" className="text-sm font-medium text-ink/80">
-              Jurisdiction
-            </label>
-            <select
-              id="jurisdiction"
-              value={jurisdiction}
-              onChange={(event) =>
-                setJurisdiction(event.target.value as "uk" | "scotland" | "wales")
-              }
-              className="mt-1.5 rounded-md border border-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-            >
-              <option value="uk">England / Northern Ireland (SDLT)</option>
-              <option value="scotland">Scotland (LBTT)</option>
-              <option value="wales">Wales (LTT)</option>
-            </select>
-          </div>
-          <label className="flex items-center gap-2 text-sm text-ink/80">
-            <input
-              type="checkbox"
-              checked={isFirstTimeBuyer}
-              onChange={(event) => setIsFirstTimeBuyer(event.target.checked)}
-              className="rounded border-line"
-            />
-            First-time buyer
-          </label>
-          <Button type="submit" variant="primary" disabled={isPending || !purchasePrice}>
+          <Button type="submit" variant="primary" disabled={isPending || !profits}>
             {isPending ? "Computing…" : "Compute"}
           </Button>
         </form>
         {error && <p className="mt-3 text-sm text-red-700">{error}</p>}
         <p className="mt-3 text-xs leading-relaxed text-ink/50">
-          Covers standard residential rates for one main dwelling only — it
-          doesn&apos;t yet cover the additional-property surcharge (SDLT),
-          the Additional Dwelling Supplement (LBTT), or the higher
-          residential rates (LTT). Wales does not offer first-time buyer
-          relief for LTT, so that checkbox has no effect there.
+          Covers Class 4 contributions only — it doesn&apos;t yet cover the
+          flat-rate Class 2 contribution for self-employed profits above
+          the Small Profits Threshold.
         </p>
       </Card>
 

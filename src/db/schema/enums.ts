@@ -32,6 +32,7 @@ export const sourceStatusEnum = pgEnum("source_status", [
 export const taxAreaEnum = pgEnum("tax_area", [
   "income_tax",
   "nic",
+  "nic_class4",
   "cgt",
   "iht",
   "corporation_tax",

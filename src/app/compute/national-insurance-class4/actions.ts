@@ -4,35 +4,26 @@ import { auth } from "@/lib/auth";
 import { db } from "@/db";
 import { computationLineItems, taxComputations } from "@/db/schema";
 import { getPublishedRateTable } from "@/db/queries/compute";
-import { computeSdlt, type SdltRateTableValues } from "@/lib/tax-engine/stamp-duty-land-tax";
-import { narrateSdltResult } from "@/lib/tax-engine/narrative";
+import {
+  computeClass4Nic,
+  type Class4NicRateTableValues,
+} from "@/lib/tax-engine/national-insurance-class4";
+import { narrateClass4NicResult } from "@/lib/tax-engine/narrative";
 
-const TAX_NAME_BY_JURISDICTION: Record<"uk" | "scotland" | "wales", string> = {
-  uk: "Stamp Duty Land Tax",
-  scotland: "Land and Buildings Transaction Tax",
-  wales: "Land Transaction Tax",
-};
-
-export async function runSdltComputation(
-  purchasePrice: number,
-  isFirstTimeBuyer: boolean,
-  jurisdiction: "uk" | "scotland" | "wales" = "uk",
-) {
-  if (!Number.isFinite(purchasePrice) || purchasePrice < 0) {
-    throw new Error("Enter a valid, non-negative purchase price");
+export async function runClass4NicComputation(annualProfits: number) {
+  if (!Number.isFinite(annualProfits) || annualProfits < 0) {
+    throw new Error("Enter a valid, non-negative profits figure");
   }
 
-  const rateTableRow = await getPublishedRateTable("sdlt", jurisdiction);
+  const rateTableRow = await getPublishedRateTable("nic_class4", "uk");
   if (!rateTableRow) {
-    throw new Error(
-      `No published ${TAX_NAME_BY_JURISDICTION[jurisdiction]} rate table is available`,
-    );
+    throw new Error("No published Class 4 National Insurance rate table is available");
   }
 
   const { rateTable, source } = rateTableRow;
-  const values = rateTable.values as SdltRateTableValues;
-  const result = computeSdlt(purchasePrice, isFirstTimeBuyer, values);
-  const narrative = narrateSdltResult(result, TAX_NAME_BY_JURISDICTION[jurisdiction]);
+  const values = rateTable.values as Class4NicRateTableValues;
+  const result = computeClass4Nic(annualProfits, values);
+  const narrative = narrateClass4NicResult(result, rateTable.taxYear);
 
   const session = await auth();
   let computationId: string | null = null;
@@ -42,9 +33,9 @@ export async function runSdltComputation(
       .insert(taxComputations)
       .values({
         userId: session.user.id,
-        taxArea: "sdlt",
+        taxArea: "nic_class4",
         rateTableId: rateTable.id,
-        inputSnapshot: { purchasePrice, isFirstTimeBuyer, jurisdiction },
+        inputSnapshot: { annualProfits },
         outputBreakdown: result,
         narrativeExplanation: narrative,
         status: "confirmed",

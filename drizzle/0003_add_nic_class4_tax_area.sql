@@ -1,0 +1,1 @@
+ALTER TYPE "public"."tax_area" ADD VALUE 'nic_class4' BEFORE 'cgt';

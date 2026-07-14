@@ -1,8 +1,11 @@
 import type { IncomeTaxResult } from "./income-tax";
 import type { NationalInsuranceResult } from "./national-insurance";
+import type { Class4NicResult } from "./national-insurance-class4";
 import type { CapitalGainsTaxResult } from "./capital-gains-tax";
 import type { InheritanceTaxResult } from "./inheritance-tax";
 import type { SdltResult } from "./stamp-duty-land-tax";
+import type { CorporationTaxResult } from "./corporation-tax";
+import type { VatResult } from "./vat";
 
 const currency = new Intl.NumberFormat("en-GB", {
   style: "currency",
@@ -93,10 +96,61 @@ export function narrateInheritanceTaxResult(result: InheritanceTaxResult) {
  * Land Tax result — plain string formatting over real numbers, not
  * free-form generation.
  */
-export function narrateSdltResult(result: SdltResult) {
+export function narrateSdltResult(result: SdltResult, taxName = "Stamp Duty Land Tax") {
   const lines = [
-    `On a purchase price of ${currency.format(result.purchasePrice)}${result.isFirstTimeBuyer ? ", using first-time buyer relief bands," : ""} the Stamp Duty Land Tax due is ${currency.format(result.totalTax)} — an effective rate of ${(result.effectiveRate * 100).toFixed(1)}% of the purchase price.`,
+    `On a purchase price of ${currency.format(result.purchasePrice)}${result.isFirstTimeBuyer ? ", using first-time buyer relief bands," : ""} the ${taxName} due is ${currency.format(result.totalTax)} — an effective rate of ${(result.effectiveRate * 100).toFixed(1)}% of the purchase price.`,
   ];
+
+  return lines.join(" ");
+}
+
+/**
+ * Deterministic, template-based write-up of an already-computed Class 4
+ * self-employed NI result — plain string formatting over real numbers,
+ * not free-form generation.
+ */
+export function narrateClass4NicResult(result: Class4NicResult, taxYear: string) {
+  const lines = [
+    `On ${currency.format(result.annualEarnings)} of annual taxable profits for ${taxYear}, your Class 4 self-employed National Insurance works out to ${currency.format(result.totalContributions)} — an effective rate of ${(result.effectiveRate * 100).toFixed(1)}% of your profits.`,
+  ];
+
+  return lines.join(" ");
+}
+
+/**
+ * Deterministic, template-based write-up of an already-computed
+ * Corporation Tax result — plain string formatting over real numbers, not
+ * free-form generation.
+ */
+export function narrateCorporationTaxResult(result: CorporationTaxResult, taxYear: string) {
+  const lines = [
+    `On ${currency.format(result.profits)} of taxable profits for ${taxYear}, your Corporation Tax works out to ${currency.format(result.totalTax)} — an effective rate of ${(result.effectiveRate * 100).toFixed(1)}% of profits.`,
+  ];
+
+  if (result.marginalRelief > 0) {
+    lines.push(
+      `That includes ${currency.format(result.marginalRelief)} of marginal relief, which tapers the rate down from the full main rate toward the small profits rate for profits between the two limits.`,
+    );
+  }
+
+  return lines.join(" ");
+}
+
+/**
+ * Deterministic, template-based write-up of an already-computed VAT
+ * result — plain string formatting over real numbers, not free-form
+ * generation.
+ */
+export function narrateVatResult(result: VatResult) {
+  const lines = [
+    `Total output VAT on your sales for the period is ${currency.format(result.outputVat)}, and you have ${currency.format(result.inputVat)} of input VAT to reclaim.`,
+  ];
+
+  lines.push(
+    result.netVatDue >= 0
+      ? `That leaves ${currency.format(result.netVatDue)} due to HMRC for this period.`
+      : `That leaves ${currency.format(Math.abs(result.netVatDue))} repayable by HMRC for this period.`,
+  );
 
   return lines.join(" ");
 }

@@ -4,35 +4,41 @@ import { auth } from "@/lib/auth";
 import { db } from "@/db";
 import { computationLineItems, taxComputations } from "@/db/schema";
 import { getPublishedRateTable } from "@/db/queries/compute";
-import { computeSdlt, type SdltRateTableValues } from "@/lib/tax-engine/stamp-duty-land-tax";
-import { narrateSdltResult } from "@/lib/tax-engine/narrative";
+import { computeVat, type VatRateTableValues } from "@/lib/tax-engine/vat";
+import { narrateVatResult } from "@/lib/tax-engine/narrative";
 
-const TAX_NAME_BY_JURISDICTION: Record<"uk" | "scotland" | "wales", string> = {
-  uk: "Stamp Duty Land Tax",
-  scotland: "Land and Buildings Transaction Tax",
-  wales: "Land Transaction Tax",
-};
-
-export async function runSdltComputation(
-  purchasePrice: number,
-  isFirstTimeBuyer: boolean,
-  jurisdiction: "uk" | "scotland" | "wales" = "uk",
+export async function runVatComputation(
+  standardRatedSales: number,
+  reducedRatedSales: number,
+  zeroRatedSales: number,
+  inputVat: number,
 ) {
-  if (!Number.isFinite(purchasePrice) || purchasePrice < 0) {
-    throw new Error("Enter a valid, non-negative purchase price");
+  for (const [label, value] of [
+    ["standard-rated sales", standardRatedSales],
+    ["reduced-rated sales", reducedRatedSales],
+    ["zero-rated sales", zeroRatedSales],
+    ["input VAT", inputVat],
+  ] as const) {
+    if (!Number.isFinite(value) || value < 0) {
+      throw new Error(`Enter a valid, non-negative ${label} figure`);
+    }
   }
 
-  const rateTableRow = await getPublishedRateTable("sdlt", jurisdiction);
+  const rateTableRow = await getPublishedRateTable("vat", "uk");
   if (!rateTableRow) {
-    throw new Error(
-      `No published ${TAX_NAME_BY_JURISDICTION[jurisdiction]} rate table is available`,
-    );
+    throw new Error("No published VAT rate table is available");
   }
 
   const { rateTable, source } = rateTableRow;
-  const values = rateTable.values as SdltRateTableValues;
-  const result = computeSdlt(purchasePrice, isFirstTimeBuyer, values);
-  const narrative = narrateSdltResult(result, TAX_NAME_BY_JURISDICTION[jurisdiction]);
+  const values = rateTable.values as VatRateTableValues;
+  const result = computeVat(
+    standardRatedSales,
+    reducedRatedSales,
+    zeroRatedSales,
+    inputVat,
+    values,
+  );
+  const narrative = narrateVatResult(result);
 
   const session = await auth();
   let computationId: string | null = null;
@@ -42,9 +48,9 @@ export async function runSdltComputation(
       .insert(taxComputations)
       .values({
         userId: session.user.id,
-        taxArea: "sdlt",
+        taxArea: "vat",
         rateTableId: rateTable.id,
-        inputSnapshot: { purchasePrice, isFirstTimeBuyer, jurisdiction },
+        inputSnapshot: { standardRatedSales, reducedRatedSales, zeroRatedSales, inputVat },
         outputBreakdown: result,
         narrativeExplanation: narrative,
         status: "confirmed",
