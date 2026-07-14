@@ -3,7 +3,18 @@ import { db } from "@/db";
 import { rateTables, sources } from "@/db/schema";
 
 export async function getPublishedRateTable(
-  taxArea: "income_tax" | "nic" | "nic_class4" | "cgt" | "iht" | "sdlt" | "corporation_tax" | "vat",
+  taxArea:
+    | "income_tax"
+    | "nic"
+    | "nic_class4"
+    | "cgt"
+    | "iht"
+    | "sdlt"
+    | "corporation_tax"
+    | "vat"
+    | "council_tax"
+    | "business_rates"
+    | "r_and_d_relief",
   jurisdiction: "uk" | "scotland" | "wales",
 ) {
   const row = await db

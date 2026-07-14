@@ -387,6 +387,104 @@ async function main() {
     lastVerifiedAt: now,
   });
 
+  const lgfa1992Sch1 = await upsertSource({
+    slug: "lgfa-1992-sch1",
+    sourceType: "act",
+    title: "Local Government Finance Act 1992, Schedule 1 — Valuation bands and proportions",
+    citationCode: "LGFA 1992 Sch.1",
+    officialUrl: "https://www.legislation.gov.uk/ukpga/1992/14/schedule/1",
+    jurisdiction: "uk",
+    effectiveFrom: "1993-04-01",
+    summaryPlainEnglish:
+      "Sets the statutory, nationally-fixed proportions each Council Tax valuation band (A-H) pays relative to Band D: A=6/9, B=7/9, C=8/9, D=9/9, E=11/9, F=13/9, G=15/9, H=18/9. These ratios cannot be varied by individual councils.",
+    fullTextExtract:
+      "The amount of council tax payable in respect of a dwelling in a particular valuation band is calculated by applying the proportion set out for that band relative to Band D, as set out in the Table in this Schedule.",
+    status: "in_force",
+    lastVerifiedAt: now,
+  });
+
+  const govukCouncilTaxBands = await upsertSource({
+    slug: "govuk-council-tax-bands",
+    sourceType: "govuk_guidance",
+    title: "Council Tax bands and rates",
+    citationCode: "GOV.UK, Council Tax bands",
+    officialUrl: "https://www.gov.uk/council-tax-bands",
+    jurisdiction: "uk",
+    effectiveFrom: "1993-04-01",
+    summaryPlainEnglish:
+      "Confirms the statutory band ratios and explains that the actual amount charged (the Band D figure) is set annually by each of England's billing authorities individually — there is no single national Council Tax rate.",
+    fullTextExtract:
+      "Band A: 6/9 of Band D. Band B: 7/9. Band C: 8/9. Band D: 9/9 (the reference amount). Band E: 11/9. Band F: 13/9. Band G: 15/9. Band H: 18/9.",
+    status: "in_force",
+    lastVerifiedAt: now,
+  });
+
+  const lgfa1988S43 = await upsertSource({
+    slug: "lgfa-1988-s43",
+    sourceType: "act",
+    title: "Local Government Finance Act 1988, s.43 — Occupied hereditaments: liability",
+    citationCode: "LGFA 1988 s.43",
+    officialUrl: "https://www.legislation.gov.uk/ukpga/1988/41/section/43",
+    jurisdiction: "uk",
+    effectiveFrom: "1990-04-01",
+    summaryPlainEnglish:
+      "Establishes liability for non-domestic (business) rates on occupied property, calculated as the rateable value multiplied by a multiplier set annually — the small business multiplier for lower-value properties, the standard multiplier for higher-value ones.",
+    fullTextExtract:
+      "A person (the ratepayer) shall as regards a hereditament be subject to a non-domestic rate in respect of a chargeable financial year if the ratepayer is in occupation of the whole or part of the hereditament on the day concerned.",
+    status: "in_force",
+    lastVerifiedAt: now,
+  });
+
+  const govukBusinessRatesMultipliers = await upsertSource({
+    slug: "govuk-business-rates-multipliers-2026-27",
+    sourceType: "govuk_guidance",
+    title: "Business rates multipliers and Small Business Rate Relief",
+    citationCode: "GOV.UK, Business rates multipliers (2026-27)",
+    officialUrl: "https://www.gov.uk/calculate-your-business-rates",
+    jurisdiction: "uk",
+    effectiveFrom: "2026-04-01",
+    effectiveTo: "2027-03-31",
+    summaryPlainEnglish:
+      "For 2026/27 (England): small business multiplier 43.2p (non-RHL) / 38.2p (retail, hospitality, leisure), standard multiplier 48.0p (non-RHL) / 43.0p (RHL), for properties under £51,000 rateable value using the small business multiplier. Small Business Rate Relief gives 100% relief up to £12,000 rateable value, tapering to 0% at £15,000.",
+    fullTextExtract:
+      "Small business non-RHL multiplier: 43.2p. Small business RHL multiplier: 38.2p. Standard non-RHL multiplier: 48.0p. Standard RHL multiplier: 43.0p. Small Business Rate Relief: 100% relief for rateable value up to £12,000, tapering to 0% at £15,000.",
+    status: "in_force",
+    lastVerifiedAt: now,
+  });
+
+  const cta2009Part13 = await upsertSource({
+    slug: "cta-2009-part13",
+    sourceType: "act",
+    title: "Corporation Tax Act 2009, Part 13 — Additional relief for expenditure on research and development",
+    citationCode: "CTA 2009 Part 13",
+    officialUrl: "https://www.legislation.gov.uk/ukpga/2009/4/part/13",
+    jurisdiction: "uk",
+    effectiveFrom: "2009-04-01",
+    summaryPlainEnglish:
+      "The statutory basis for R&D tax relief. For accounting periods beginning on or after 1 April 2024, this Part provides the merged R&D Expenditure Credit (RDEC) scheme: an above-the-line taxable credit calculated on qualifying R&D expenditure.",
+    fullTextExtract:
+      "A company is entitled to an R&D expenditure credit for an accounting period if it has qualifying Chapter 1A expenditure in the period. The credit is calculated by applying the specified percentage to the qualifying expenditure.",
+    status: "in_force",
+    lastVerifiedAt: now,
+  });
+
+  const govukRdReliefMergedScheme = await upsertSource({
+    slug: "govuk-rd-relief-merged-scheme-2026-27",
+    sourceType: "govuk_guidance",
+    title: "R&D tax relief: the merged R&D expenditure credit scheme",
+    citationCode: "GOV.UK, R&D tax relief — merged scheme (2026-27)",
+    officialUrl:
+      "https://www.gov.uk/guidance/research-and-development-rd-tax-relief-the-merged-scheme-and-enhanced-rd-intensive-support",
+    jurisdiction: "uk",
+    effectiveFrom: "2024-04-01",
+    summaryPlainEnglish:
+      "The merged RDEC scheme applies to accounting periods beginning on or after 1 April 2024. It gives an above-the-line credit of 20% of qualifying R&D expenditure. Because the credit itself is taxable income, the net cash benefit after Corporation Tax at the 25% main rate is 15% of qualifying expenditure for a profitable company.",
+    fullTextExtract:
+      "R&D expenditure credit rate: 20% of qualifying expenditure. The credit is subject to Corporation Tax, giving a net benefit of 15% of qualifying expenditure for companies paying the 25% main rate.",
+    status: "in_force",
+    lastVerifiedAt: now,
+  });
+
   const incomeTaxTopic = await db.query.topics.findFirst({
     where: eq(topics.slug, "income-tax-personal-allowance"),
   });
@@ -440,6 +538,27 @@ async function main() {
     difficultyLevel: "foundational",
   });
 
+  const councilTaxTopic = await upsertTopic({
+    slug: "council-tax-bands",
+    name: "Council Tax: valuation bands",
+    taxArea: "council_tax",
+    difficultyLevel: "foundational",
+  });
+
+  const businessRatesTopic = await upsertTopic({
+    slug: "business-rates-multipliers",
+    name: "Business Rates: multipliers and relief",
+    taxArea: "business_rates",
+    difficultyLevel: "foundational",
+  });
+
+  const rdReliefTopic = await upsertTopic({
+    slug: "rd-tax-relief-merged-scheme",
+    name: "R&D Tax Relief: merged RDEC scheme",
+    taxArea: "r_and_d_relief",
+    difficultyLevel: "intermediate",
+  });
+
   const topicSourceLinks: (typeof topicSources.$inferInsert)[] = [
     ...(incomeTaxTopic
       ? [
@@ -470,6 +589,16 @@ async function main() {
     { topicId: vatTopic.id, sourceId: govukVatRates.id, relevance: "primary" },
     { topicId: nicClass4Topic.id, sourceId: sscbaS15.id, relevance: "primary" },
     { topicId: nicClass4Topic.id, sourceId: govukClass4NicRates.id, relevance: "primary" },
+    { topicId: councilTaxTopic.id, sourceId: lgfa1992Sch1.id, relevance: "primary" },
+    { topicId: councilTaxTopic.id, sourceId: govukCouncilTaxBands.id, relevance: "primary" },
+    { topicId: businessRatesTopic.id, sourceId: lgfa1988S43.id, relevance: "primary" },
+    {
+      topicId: businessRatesTopic.id,
+      sourceId: govukBusinessRatesMultipliers.id,
+      relevance: "primary",
+    },
+    { topicId: rdReliefTopic.id, sourceId: cta2009Part13.id, relevance: "primary" },
+    { topicId: rdReliefTopic.id, sourceId: govukRdReliefMergedScheme.id, relevance: "primary" },
   ];
 
   for (const link of topicSourceLinks) {
@@ -675,6 +804,61 @@ async function main() {
         { label: "Above £1,500,000", upTo: null, rate: 0.12 },
       ],
       firstTimeBuyerReliefCeiling: 0,
+    },
+  });
+
+  await upsertRateTable({
+    taxArea: "council_tax",
+    taxYear: "2026-27",
+    jurisdiction: "uk",
+    effectiveFrom: "2026-04-01",
+    effectiveTo: "2027-03-31",
+    sourceId: govukCouncilTaxBands.id,
+    status: "published",
+    values: {
+      bandRatios: {
+        A: 6 / 9,
+        B: 7 / 9,
+        C: 8 / 9,
+        D: 1,
+        E: 11 / 9,
+        F: 13 / 9,
+        G: 15 / 9,
+        H: 2,
+      },
+    },
+  });
+
+  await upsertRateTable({
+    taxArea: "business_rates",
+    taxYear: "2026-27",
+    jurisdiction: "uk",
+    effectiveFrom: "2026-04-01",
+    effectiveTo: "2027-03-31",
+    sourceId: govukBusinessRatesMultipliers.id,
+    status: "published",
+    values: {
+      smallBusinessMultiplier: 0.432,
+      smallBusinessRhlMultiplier: 0.382,
+      standardMultiplier: 0.48,
+      standardRhlMultiplier: 0.43,
+      smallBusinessThreshold: 51000,
+      smallBusinessRateReliefFullThreshold: 12000,
+      smallBusinessRateReliefTaperCeiling: 15000,
+    },
+  });
+
+  await upsertRateTable({
+    taxArea: "r_and_d_relief",
+    taxYear: "2026-27",
+    jurisdiction: "uk",
+    effectiveFrom: "2026-04-01",
+    effectiveTo: "2027-03-31",
+    sourceId: govukRdReliefMergedScheme.id,
+    status: "published",
+    values: {
+      creditRate: 0.2,
+      corporationTaxRate: 0.25,
     },
   });
 

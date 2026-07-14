@@ -58,6 +58,27 @@ const CALCULATORS = [
     status: "Available",
     description: "Output VAT by rate minus reclaimable input VAT for one return period.",
   },
+  {
+    href: "/compute/council-tax",
+    title: "Council Tax",
+    status: "Available",
+    description:
+      "Statutory Band A-H ratios applied to your billing authority's Band D charge.",
+  },
+  {
+    href: "/compute/business-rates",
+    title: "Business Rates",
+    status: "Available",
+    description:
+      "Rateable value x multiplier, with Small Business Rate Relief tapering. England only.",
+  },
+  {
+    href: "/compute/rd-relief",
+    title: "R&D Tax Relief",
+    status: "Available",
+    description:
+      "Merged RDEC scheme: gross credit and net cash benefit after Corporation Tax on the credit itself.",
+  },
 ];
 
 export default function ComputePage() {

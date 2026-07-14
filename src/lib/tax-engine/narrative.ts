@@ -6,6 +6,9 @@ import type { InheritanceTaxResult } from "./inheritance-tax";
 import type { SdltResult } from "./stamp-duty-land-tax";
 import type { CorporationTaxResult } from "./corporation-tax";
 import type { VatResult } from "./vat";
+import type { CouncilTaxResult } from "./council-tax";
+import type { BusinessRatesResult } from "./business-rates";
+import type { RdReliefResult } from "./rd-relief";
 
 const currency = new Intl.NumberFormat("en-GB", {
   style: "currency",
@@ -153,4 +156,41 @@ export function narrateVatResult(result: VatResult) {
   );
 
   return lines.join(" ");
+}
+
+/**
+ * Deterministic, template-based write-up of an already-computed Council
+ * Tax result — plain string formatting over real numbers, not free-form
+ * generation.
+ */
+export function narrateCouncilTaxResult(result: CouncilTaxResult) {
+  return `A Band ${result.band} property pays ${result.ratio.toFixed(3)} of the Band D charge. On a Band D charge of ${currency.format(result.bandDCharge)}, that works out to ${currency.format(result.annualCharge)} for the year.`;
+}
+
+/**
+ * Deterministic, template-based write-up of an already-computed Business
+ * Rates result — plain string formatting over real numbers, not
+ * free-form generation.
+ */
+export function narrateBusinessRatesResult(result: BusinessRatesResult) {
+  const lines = [
+    `On a rateable value of ${currency.format(result.rateableValue)} at a ${result.multiplierUsed.toFixed(3)} multiplier, the gross bill is ${currency.format(result.grossBill)}.`,
+  ];
+
+  lines.push(
+    result.reliefAmount > 0
+      ? `Small Business Rate Relief of ${result.reliefPercent.toFixed(1)}% reduces that by ${currency.format(result.reliefAmount)}, leaving ${currency.format(result.netBill)} due for the year.`
+      : `No Small Business Rate Relief applies, leaving the full ${currency.format(result.netBill)} due for the year.`,
+  );
+
+  return lines.join(" ");
+}
+
+/**
+ * Deterministic, template-based write-up of an already-computed R&D tax
+ * relief result — plain string formatting over real numbers, not
+ * free-form generation.
+ */
+export function narrateRdReliefResult(result: RdReliefResult) {
+  return `On ${currency.format(result.qualifyingExpenditure)} of qualifying R&D expenditure, the R&D Expenditure Credit is ${currency.format(result.grossCredit)}. Because that credit is itself taxable, ${currency.format(result.taxOnCredit)} of Corporation Tax applies to it, leaving a net cash benefit of ${currency.format(result.netCashBenefit)}.`;
 }
