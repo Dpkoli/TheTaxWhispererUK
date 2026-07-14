@@ -1,12 +1,27 @@
-const TOPIC_HINTS: Array<{ keywords: string[] }> = [
-  { keywords: ["personal allowance", "£100,000", "100,000", "adjusted net income"] },
-  { keywords: ["state pension", "qualifying year", "national insurance record"] },
+const TOPIC_HINTS: Array<{ topicSlug: string; keywords: string[] }> = [
+  {
+    topicSlug: "income-tax-personal-allowance",
+    keywords: ["personal allowance", "£100,000", "100,000", "adjusted net income"],
+  },
+  {
+    topicSlug: "state-pension-entitlement",
+    keywords: ["state pension", "qualifying year", "national insurance record"],
+  },
+  {
+    topicSlug: "national-insurance-class-1",
+    keywords: ["class 1", "national insurance", "primary threshold", "ni contribution"],
+  },
+  {
+    topicSlug: "capital-gains-tax-individuals",
+    keywords: ["capital gains", "cgt", "annual exempt amount", "chargeable gain"],
+  },
 ];
 
-/** True if the message touches a topic we have a real, cited Advisory answer for. */
-export function matchesKnownAdvisoryTopic(userMessage: string) {
+/** The slug of the Topic this message touches a known, cited Advisory answer for, or null. */
+export function matchesKnownAdvisoryTopic(userMessage: string): string | null {
   const lower = userMessage.toLowerCase();
-  return TOPIC_HINTS.some((topic) => topic.keywords.some((k) => lower.includes(k)));
+  const match = TOPIC_HINTS.find((topic) => topic.keywords.some((k) => lower.includes(k)));
+  return match?.topicSlug ?? null;
 }
 
 export const ESCALATION_MARKER = "Open in Advisory →";

@@ -10,16 +10,20 @@ import {
 import { generateChatReply, type ChatHistoryMessage } from "@/lib/chat-llm";
 
 async function getReply(history: ChatHistoryMessage[], trimmed: string) {
+  const escalationTopicSlug = matchesKnownAdvisoryTopic(trimmed);
   try {
     const reply = await generateChatReply(history, trimmed);
     const alreadyMentionsAdvisory = /advisory/i.test(reply);
-    if (matchesKnownAdvisoryTopic(trimmed) && !alreadyMentionsAdvisory) {
-      return `${reply} Want the detailed breakdown with sources? ${ESCALATION_MARKER}`;
+    if (escalationTopicSlug && !alreadyMentionsAdvisory) {
+      return {
+        body: `${reply} Want the detailed breakdown with sources? ${ESCALATION_MARKER}`,
+        escalationTopicSlug,
+      };
     }
-    return reply;
+    return { body: reply, escalationTopicSlug: null };
   } catch (error) {
     console.error("Groq chat completion failed, falling back to stub reply:", error);
-    return generateStubReply(trimmed);
+    return { body: generateStubReply(trimmed), escalationTopicSlug };
   }
 }
 
@@ -39,7 +43,7 @@ export async function sendChatMessage(
     return {
       persisted: false as const,
       userMessage: { role: "user" as const, body: trimmed },
-      assistantMessage: { role: "assistant" as const, body: reply },
+      assistantMessage: { role: "assistant" as const, body: reply.body },
     };
   }
 
@@ -53,7 +57,12 @@ export async function sendChatMessage(
   const reply = await getReply(history, trimmed);
 
   const userMessage = await appendMessage(chatSession.id, "user", trimmed);
-  const assistantMessage = await appendMessage(chatSession.id, "assistant", reply);
+  const assistantMessage = await appendMessage(
+    chatSession.id,
+    "assistant",
+    reply.body,
+    reply.escalationTopicSlug,
+  );
 
   return { persisted: true as const, userMessage, assistantMessage };
 }

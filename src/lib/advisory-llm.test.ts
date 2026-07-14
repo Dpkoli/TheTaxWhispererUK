@@ -20,6 +20,13 @@ const SOURCES: SourceContext[] = [
     summaryPlainEnglish: "Personal allowance and its taper.",
     fullTextExtract: "An individual is entitled to a personal allowance...",
     status: "amended",
+    sections: [
+      {
+        sectionLabel: "s.35(2)",
+        anchorSlug: "subsection-2",
+        text: "For an individual whose adjusted net income exceeds £100,000...",
+      },
+    ],
   },
 ];
 
@@ -49,9 +56,15 @@ describe("generateAdvisoryAnswer — defense in depth against invented citations
       deadlines: null,
       confidenceFlag: "settled_law",
       citations: [
-        { sourceSlug: "ita-2007-s35", claimText: "real citation", confidence: "settled_law" },
+        {
+          sourceSlug: "ita-2007-s35",
+          sectionAnchorSlug: "subsection-2",
+          claimText: "real citation",
+          confidence: "settled_law",
+        },
         {
           sourceSlug: "ita-2007-s999-invented",
+          sectionAnchorSlug: null,
           claimText: "hallucinated section that was never in context",
           confidence: "settled_law",
         },
@@ -62,6 +75,33 @@ describe("generateAdvisoryAnswer — defense in depth against invented citations
 
     expect(result.citations).toHaveLength(1);
     expect(result.citations[0].sourceSlug).toBe("ita-2007-s35");
+    expect(result.citations[0].sectionAnchorSlug).toBe("subsection-2");
+  });
+
+  it("nulls out an invented section anchor that isn't a real subsection of the cited source", async () => {
+    mockCompletion({
+      hasCoverage: true,
+      topicSlug: "income-tax-personal-allowance",
+      plainSummary: "Summary.",
+      technicalAnalysis: "Analysis.",
+      workedExample: null,
+      complianceNotes: null,
+      deadlines: null,
+      confidenceFlag: "settled_law",
+      citations: [
+        {
+          sourceSlug: "ita-2007-s35",
+          sectionAnchorSlug: "invented-subsection",
+          claimText: "real citation, fabricated anchor",
+          confidence: "settled_law",
+        },
+      ],
+    });
+
+    const result = await generateAdvisoryAnswer("test question", SOURCES, TOPICS);
+
+    expect(result.citations).toHaveLength(1);
+    expect(result.citations[0].sectionAnchorSlug).toBeNull();
   });
 
   it("nulls out a topicSlug that isn't in the known topic list", async () => {

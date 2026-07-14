@@ -59,6 +59,10 @@ export default async function AdvisoryAnswerPage({
           <h1 className="mt-2 text-2xl font-semibold text-navy-950 sm:text-3xl">
             {question.rawQuestion}
           </h1>
+          <p className="mt-1 text-xs text-ink/50">
+            Version {answer.answerVersion} · generated{" "}
+            {new Date(answer.createdAt).toLocaleString("en-GB")}
+          </p>
 
           <div className="mt-8 grid gap-6 lg:grid-cols-[2fr_1fr]">
             <div className="space-y-6">
@@ -98,11 +102,19 @@ export default async function AdvisoryAnswerPage({
                   <p className="mt-3 text-sm text-ink/50">No citations recorded.</p>
                 ) : (
                   <ul className="mt-3 space-y-4">
-                    {citations.map(({ citation, source }) => (
+                    {citations.map(({ citation, source, sourceSection }) => (
                       <li key={citation.id} className="border-l-2 border-line pl-3">
                         <CitationChip
-                          href={`/sources/${source.slug}`}
-                          code={source.citationCode}
+                          href={
+                            sourceSection
+                              ? `/sources/${source.slug}#${sourceSection.anchorSlug}`
+                              : `/sources/${source.slug}`
+                          }
+                          code={
+                            sourceSection
+                              ? `${source.citationCode.replace(/\ss\.\d+.*$/, "")} ${sourceSection.sectionLabel}`
+                              : source.citationCode
+                          }
                         />
                         <p className="mt-1 text-xs leading-relaxed text-ink/60">
                           {citation.claimText}

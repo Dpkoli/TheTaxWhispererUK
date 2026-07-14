@@ -4,13 +4,15 @@ import {
   advisoryAnswers,
   advisoryQuestions,
   citations,
+  sourceSections,
   sources,
   topics,
 } from "@/db/schema";
 
 export async function listAllSourcesForContext() {
-  return db.query.sources.findMany({
+  const allSources = await db.query.sources.findMany({
     columns: {
+      id: true,
       slug: true,
       sourceType: true,
       title: true,
@@ -20,6 +22,21 @@ export async function listAllSourcesForContext() {
       status: true,
     },
   });
+
+  const allSections = await db.query.sourceSections.findMany({
+    columns: { sourceId: true, sectionLabel: true, anchorSlug: true, text: true },
+  });
+  const sectionsBySourceId = new Map<string, typeof allSections>();
+  for (const section of allSections) {
+    const list = sectionsBySourceId.get(section.sourceId) ?? [];
+    list.push(section);
+    sectionsBySourceId.set(section.sourceId, list);
+  }
+
+  return allSources.map((source) => ({
+    ...source,
+    sections: sectionsBySourceId.get(source.id) ?? [],
+  }));
 }
 
 export async function listAllTopicsForContext() {
@@ -59,9 +76,10 @@ export async function getAdvisoryAnswer(questionId: string) {
   const { question, answer, topic } = row[0];
 
   const answerCitations = await db
-    .select({ citation: citations, source: sources })
+    .select({ citation: citations, source: sources, sourceSection: sourceSections })
     .from(citations)
     .innerJoin(sources, eq(sources.id, citations.sourceId))
+    .leftJoin(sourceSections, eq(sourceSections.id, citations.sourceSectionId))
     .where(
       and(eq(citations.contentId, answer.id), eq(citations.contentType, "advisory_answer")),
     );
