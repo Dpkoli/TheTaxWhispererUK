@@ -12,6 +12,7 @@ import type { RdReliefResult } from "./rd-relief";
 import type { Ir35Result } from "./ir35-deemed-payment";
 import type { Class2Class3Result } from "./nic-class2-class3";
 import type { Ir35Chapter10Result } from "./ir35-chapter10";
+import type { TransferPricingResult } from "./transfer-pricing";
 
 const currency = new Intl.NumberFormat("en-GB", {
   style: "currency",
@@ -249,4 +250,17 @@ export function narrateIr35Chapter10Result(result: Ir35Chapter10Result) {
   );
 
   return lines.join(" ");
+}
+
+export function narrateTransferPricingResult(result: TransferPricingResult) {
+  if (result.withinRange) {
+    return `The actual ${result.transactionType} price of ${currency.format(result.actualPrice)} falls within the arm's-length range of ${currency.format(result.armsLengthLow)} to ${currency.format(result.armsLengthHigh)}, so no adjustment is needed under the TIOPA 2010 s.147 basic transfer pricing rule.`;
+  }
+
+  const direction =
+    result.transactionType === "sale"
+      ? `below the arm's-length range low of ${currency.format(result.armsLengthLow)}, understating UK taxable profit`
+      : `above the arm's-length range high of ${currency.format(result.armsLengthHigh)}, overstating deductible cost and understating UK taxable profit`;
+
+  return `The actual ${result.transactionType} price of ${currency.format(result.actualPrice)} sits ${direction}. Under TIOPA 2010 s.147, UK taxable profits must be adjusted upward by ${currency.format(result.profitAdjustment)} to the nearest boundary of the arm's-length range, adding ${currency.format(result.additionalTax)} of Corporation Tax. This is a one-way rule — HMRC can only require an increase to UK profits, never a reduction, so prices outside the range in the taxpayer's favour need no adjustment.`;
 }

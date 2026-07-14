@@ -100,6 +100,13 @@ const CALCULATORS = [
     description:
       "Whether you're credited automatically above the Small Profits Threshold, and the cost of voluntary Class 2/3 contributions.",
   },
+  {
+    href: "/compute/transfer-pricing",
+    title: "Transfer Pricing",
+    status: "Available",
+    description:
+      "TIOPA 2010 s.147 arm's-length adjustment for intra-group sales and purchases, and the resulting Corporation Tax.",
+  },
 ];
 
 export default function ComputePage() {

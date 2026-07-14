@@ -598,6 +598,38 @@ async function main() {
     lastVerifiedAt: now,
   });
 
+  const tiopaS147 = await upsertSource({
+    slug: "tiopa-2010-s147",
+    sourceType: "act",
+    title: "Taxation (International and Other Provisions) Act 2010, s.147 — Basic transfer-pricing rule",
+    citationCode: "TIOPA 2010 s.147",
+    officialUrl: "https://www.legislation.gov.uk/ukpga/2010/8/section/147",
+    jurisdiction: "uk",
+    effectiveFrom: "2010-04-01",
+    summaryPlainEnglish:
+      "Sets out the basic UK transfer pricing rule: where a provision made between two connected persons differs from what independent parties would have agreed, and the actual provision gives one of them a UK tax advantage, that person's profits and losses are recomputed for tax purposes as if the arm's-length provision had been made instead.",
+    fullTextExtract:
+      "This section applies where provision (the actual provision) has been made or imposed as between any two persons by means of a transaction or series of transactions, the participation condition is met, and the actual provision differs from the provision that would have been made as between independent enterprises (the arm's length provision). Where the actual provision confers a potential UK tax advantage on one of the affected persons, that person's profits and losses are to be computed for tax purposes as if the arm's length provision had been made instead of the actual provision.",
+    status: "in_force",
+    lastVerifiedAt: now,
+  });
+
+  const govukTransferPricing = await upsertSource({
+    slug: "govuk-intm412020-transfer-pricing",
+    sourceType: "govuk_guidance",
+    title: "INTM412020 — Transfer pricing: legislation: rules: the basic transfer pricing rule",
+    citationCode: "HMRC INTM412020",
+    officialUrl: "https://www.gov.uk/hmrc-internal-manuals/international-manual/intm412020",
+    jurisdiction: "uk",
+    effectiveFrom: "2010-04-01",
+    summaryPlainEnglish:
+      "HMRC's internal manual guidance explaining the basic transfer pricing rule in TIOPA 2010 s.147, founded on the OECD arm's-length principle, and how UK domestic law applies it as a one-way adjustment in favour of UK tax.",
+    fullTextExtract:
+      "TIOPA10/S147(3) and (5) contains the basic transfer pricing rule, which is founded on the arm's length principle. The rule requires a person's or persons' profits and losses to be calculated for tax purposes by substituting an arm's length provision for an actual provision if certain criteria are met. UK domestic transfer pricing legislation operates as a one-way street: it can only increase a UK taxpayer's profits (or reduce a loss) toward the arm's length position, it cannot be used by a taxpayer to reduce profits below what was actually returned.",
+    status: "in_force",
+    lastVerifiedAt: now,
+  });
+
   const incomeTaxTopic = await db.query.topics.findFirst({
     where: eq(topics.slug, "income-tax-personal-allowance"),
   });
@@ -693,6 +725,13 @@ async function main() {
     difficultyLevel: "advanced",
   });
 
+  const transferPricingTopic = await upsertTopic({
+    slug: "transfer-pricing-arms-length",
+    name: "Transfer Pricing: the arm's-length principle",
+    taxArea: "transfer_pricing",
+    difficultyLevel: "advanced",
+  });
+
   const topicSourceLinks: (typeof topicSources.$inferInsert)[] = [
     ...(incomeTaxTopic
       ? [
@@ -740,6 +779,8 @@ async function main() {
     { topicId: class2Class3Topic.id, sourceId: govukClass2Class3Rates.id, relevance: "primary" },
     { topicId: ir35Chapter10Topic.id, sourceId: itepaS61n.id, relevance: "primary" },
     { topicId: ir35Chapter10Topic.id, sourceId: govukOffPayrollChapter10.id, relevance: "primary" },
+    { topicId: transferPricingTopic.id, sourceId: tiopaS147.id, relevance: "primary" },
+    { topicId: transferPricingTopic.id, sourceId: govukTransferPricing.id, relevance: "primary" },
   ];
 
   for (const link of topicSourceLinks) {
@@ -1044,6 +1085,19 @@ async function main() {
     values: {
       employerNicRate: 0.15,
       employerNicSecondaryThreshold: 5000,
+    },
+  });
+
+  await upsertRateTable({
+    taxArea: "transfer_pricing",
+    taxYear: "2026-27",
+    jurisdiction: "uk",
+    effectiveFrom: "2026-04-01",
+    effectiveTo: "2027-03-31",
+    sourceId: govukTransferPricing.id,
+    status: "published",
+    values: {
+      corporationTaxRate: 0.25,
     },
   });
 
